@@ -1,7 +1,7 @@
 ## Table Of Contents
 - [CREATING TABLES](#creating-tables)
 - [INSERTING DATA](#inserting-data)
-- [SELECTION SKELETONS](#selection-skeletons)
+- [SELECTION TEMPLATES](#selection-templates)
   * [Selections](#selections)
 
 ---
@@ -23,22 +23,49 @@ CREATE TABLE "SEAT" (
 )
 
 CREATE TABLE "TRAIN" (
-    "id"	integer PRIMARY KEY AUTOINCREMENT,
-    "date_id"	integer,
-    "train_det"	integer
-);
+    "id"	integer PRIMARY KEY AUTOINCREMENT
+)
+
+CREATE TABLE "Train_Dates" (
+	"train_id"	INTEGER,
+	"dates_id"	INTEGER
+)
+
+CREATE TABLE "DEST" (
+	"id"	INTEGER PRIMARY KEY AUTOINCREMENT,
+	"destination"	TEXT,
+	"price"	REAL
+)
+
+CREATE TABLE "Train_Dest" (
+	"train_id"	INTEGER,
+	"dest_id"	INTEGER
+)
+
+CREATE TABLE "TIMES" (
+	"id"	INTEGER PRIMARY KEY AUTOINCREMENT,
+	"time"	TEXT
+)
+
+CREATE TABLE "Train_Time" (
+	"train_id"	INTEGER,
+	"time_id"	INTEGER
+)
+
+CREATE TABLE "NAME" (
+	"id"	INTEGER PRIMARY KEY AUTOINCREMENT,
+	"train_names"	TEXT
+)
+
+CREATE TABLE "Train_Name" (
+	"train_id"	INTEGER,
+	"name_id"	INTEGER
+)
 
 CREATE TABLE "static_SEAT_CLASS" (
     "id"	integer,
     "class"	text,
     PRIMARY KEY("id")
-);
-
-CREATE TABLE "static_TRAIN_DET" (
-    "id"	integer PRIMARY KEY AUTOINCREMENT,
-    "name"	text,
-    "dep_time"	text,
-    "price"	REAL
 );
 
 
@@ -84,16 +111,59 @@ INSERT INTO static_SEAT_CLASS("class") VALUES("Non-A/C");
 INSERT INTO static_SEAT_CLASS("class") VALUES("A/C Sleeper");
 INSERT INTO static_SEAT_CLASS("class") VALUES("Non-A/C Sleeper");
 
-INSERT INTO TRAIN("date_id","train_det") VALUES(1,1);
-INSERT INTO TRAIN("date_id","train_det") VALUES(1,2);
-INSERT INTO TRAIN("date_id","train_det") VALUES(1,3);
-INSERT INTO TRAIN("date_id","train_det") VALUES(2,1);
-INSERT INTO TRAIN("date_id","train_det") VALUES(2,2);
-INSERT INTO TRAIN("date_id","train_det") VALUES(2,3);
-INSERT INTO TRAIN("date_id","train_det") VALUES(3,1);
-INSERT INTO TRAIN("date_id","train_det") VALUES(3,2);
-INSERT INTO TRAIN("date_id","train_det") VALUES(3,3);
+/* ONLY PRIMARY KEY EXISTS FOR TRAINS table*/
 
+INSERT INTO Train_Dates("train_id","dates_id") VALUES(1,1);
+INSERT INTO Train_Dates("train_id","dates_id") VALUES(2,1);
+INSERT INTO Train_Dates("train_id","dates_id") VALUES(3,1);
+INSERT INTO Train_Dates("train_id","dates_id") VALUES(4,2);
+INSERT INTO Train_Dates("train_id","dates_id") VALUES(5,2);
+INSERT INTO Train_Dates("train_id","dates_id") VALUES(6,2);
+INSERT INTO Train_Dates("train_id","dates_id") VALUES(7,3);
+INSERT INTO Train_Dates("train_id","dates_id") VALUES(8,3);
+INSERT INTO Train_Dates("train_id","dates_id") VALUES(9,3);
+
+INSERT INTO DEST ("destination","price") VALUES("Thiruvallur",30);
+INSERT INTO DEST ("destination","price") VALUES("Madurai",300);
+INSERT INTO DEST ("destination","price") VALUES("Kanchipuram",160);
+
+INSERT INTO Train_Dest ("train_id","dest_id") VALUES (1,1);
+INSERT INTO Train_Dest ("train_id","dest_id") VALUES (2,2);
+INSERT INTO Train_Dest ("train_id","dest_id") VALUES (3,3);
+INSERT INTO Train_Dest ("train_id","dest_id") VALUES (4,1);
+INSERT INTO Train_Dest ("train_id","dest_id") VALUES (5,2);
+INSERT INTO Train_Dest ("train_id","dest_id") VALUES (6,3);
+INSERT INTO Train_Dest ("train_id","dest_id") VALUES (7,1);
+INSERT INTO Train_Dest ("train_id","dest_id") VALUES (8,2);
+INSERT INTO Train_Dest ("train_id","dest_id") VALUES (9,3);
+
+INSERT INTO TIMES ("time") VALUES ("10:00");
+INSERT INTO TIMES ("time") VALUES ("13:00");
+INSERT INTO TIMES ("time") VALUES ("18:00");
+
+INSERT INTO Train_Time ("train_id","time_id") VALUES (1,1);
+INSERT INTO Train_Time ("train_id","time_id") VALUES (2,2);
+INSERT INTO Train_Time ("train_id","time_id") VALUES (3,3);
+INSERT INTO Train_Time ("train_id","time_id") VALUES (4,1);
+INSERT INTO Train_Time ("train_id","time_id") VALUES (5,2);
+INSERT INTO Train_Time ("train_id","time_id") VALUES (6,3);
+INSERT INTO Train_Time ("train_id","time_id") VALUES (7,1);
+INSERT INTO Train_Time ("train_id","time_id") VALUES (8,2);
+INSERT INTO Train_Time ("train_id","time_id") VALUES (9,3);
+
+INSERT INTO NAME ("train_names") VALUES ("Train 1");
+INSERT INTO NAME ("train_names") VALUES ("Train 2");
+INSERT INTO NAME ("train_names") VALUES ("Train 3");
+
+INSERT INTO Train_Name ("train_id","name_id") VALUES (1,1);
+INSERT INTO Train_Name ("train_id","name_id") VALUES (2,2);
+INSERT INTO Train_Name ("train_id","name_id") VALUES (3,3);
+INSERT INTO Train_Name ("train_id","name_id") VALUES (4,1);
+INSERT INTO Train_Name ("train_id","name_id") VALUES (5,2);
+INSERT INTO Train_Name ("train_id","name_id") VALUES (6,3);
+INSERT INTO Train_Name ("train_id","name_id") VALUES (7,1);
+INSERT INTO Train_Name ("train_id","name_id") VALUES (8,2);
+INSERT INTO Train_Name ("train_id","name_id") VALUES (9,3);
 
 /* NO need to pass is_booked as by default it is 0 */
 INSERT INTO SEAT("seat_no","is_booked","is_window","class_id","train_id") VALUES(1,0,1,1,1);
@@ -143,58 +213,71 @@ INSERT INTO PASSENGERS ("passenger_name","age","gender_id","passenger_seat","tic
 INSERT INTO PASSENGERS ("passenger_name","age","gender_id","passenger_seat","ticket_id") VALUES ("Pass 5",55,1,61,1003);
 ```
 
-# SELECTION SKELETONS
-> SELECTION SKELETON For Trains model (TRAIN, SEAT, DATES, static_SEAT_CLASS,static_TRAIN_DET) (for operations with seats)
+# SELECTION TEMPLATES
+> SELECTION TEMPLATES For Trains model (TRAIN, SEAT, DATES, static_SEAT_CLASS,static_TRAIN_DET) (for operations with seats)
 
 ```sql
-SELECT {cols} FROM
+SELECT {Columns} FROM
 SEAT AS s JOIN static_SEAT_CLASS AS sc ON s.class_id=sc.id
 JOIN TRAIN AS t ON t.id=s.train_id
-JOIN DATES AS dt ON t.date_id = dt.id
-JOIN static_TRAIN_DET as det on det.id = t.train_det
-WHERE {conditions}
+JOIN Train_Dates AS t_dt ON t.id=t_dt.train_id JOIN DATES AS dt ON dt.id=t_dt.dates_id /*joining train dates*/
+JOIN Train_Name AS t_n ON t.id=t_n.train_id JOIN NAME AS n ON n.id=t_n.name_id /*joining train name*/
+JOIN Train_Dest AS t_des ON t.id=t_des.train_id JOIN DEST AS des ON des.id=t_des.dest_id /*joining train destination*/
+JOIN Train_Time AS t_ti ON t.id=t_ti.train_id JOIN TIMES AS ti ON ti.id=t_ti.time_id /*joining train time*/
+WHERE {Conditions}
 
 /*Example*/
-SELECT dt.dates_val, det.name, s.seat_no, sc.class, s.is_booked, s.is_window
-FROM SEAT AS s JOIN static_SEAT_CLASS AS sc ON sc.id = s.class_id
-JOIN TRAIN AS t ON t.id = s.train_id
-JOIN static_TRAIN_DET AS det ON det.id = t.train_det
-JOIN DATES AS dt ON dt.id = t.date_id
-Where dt.dates_val = "02-06-2021" AND det.name = "Train 3"
+SELECT dt.dates_val,des.destination, ti.time, n.train_names, s.seat_no, sc.class, s.is_booked, s.is_window FROM
+SEAT AS s JOIN static_SEAT_CLASS AS sc ON s.class_id=sc.id
+JOIN TRAIN AS t ON t.id=s.train_id
+JOIN Train_Dates AS t_dt ON t.id=t_dt.train_id JOIN DATES AS dt ON dt.id=t_dt.dates_id /*joining train dates*/
+JOIN Train_Name AS t_n ON t.id=t_n.train_id JOIN NAME AS n ON n.id=t_n.name_id /*joining train name*/
+JOIN Train_Dest AS t_des ON t.id=t_des.train_id JOIN DEST AS des ON des.id=t_des.dest_id /*joining train destination*/
+JOIN Train_Time AS t_ti ON t.id=t_ti.train_id JOIN TIMES AS ti ON ti.id=t_ti.time_id /*joining train time*/
+WHERE des.destination="Thiruvallur" AND dt.dates_val="03-06-2021"
 ```
 >SELECTION SKELETON FOR WHOLE MODEL(for operations with ticket)
 ```sql
-SELECT {cols}
-FROM TICKET AS tic JOIN PASSENGERS as p ON p.ticket_id=tic.ticket_number
-JOIN static_GENDER 	   AS gen ON gen.id = p.gender_id
-JOIN TRAIN 		       AS t   ON t.id   = tic.ticket_train_id
-JOIN static_TRAIN_DET  AS det ON det.id = t.train_det
-JOIN SEAT 			   AS s   ON t.id   = s.train_id  AND s.id=p.passenger_seat
-JOIN static_SEAT_CLASS AS sc  ON sc.id  = s.class_id
-JOIN DATES			   AS dt  ON dt.id  = t.date_id 
-JOIN DATES_VIEW        AS tmp ON tmp.id = tic.date_of_bk
-WHERE {conditions}
+SELECT {Columns}
+FROM PASSENGERS AS p JOIN TICKET AS tic ON tic.ticket_number=p.ticket_id
+JOIN static_GENDER AS gen ON gen.id = p.gender_id
+JOIN TRAIN AS t ON t.id   = tic.ticket_train_id
+JOIN SEAT AS s ON t.id = s.train_id  AND s.id=p.passenger_seat
+JOIN static_SEAT_CLASS AS sc ON sc.id  = s.class_id
+JOIN Train_Dates AS t_dt ON t.id=t_dt.train_id JOIN DATES AS dt ON dt.id=t_dt.dates_id /*joining train dates*/
+JOIN Train_Name AS t_n ON t.id=t_n.train_id JOIN NAME AS n ON n.id=t_n.name_id /*joining train name*/
+JOIN Train_Dest AS t_des ON t.id=t_des.train_id JOIN DEST AS des ON des.id=t_des.dest_id /*joining train destination*/
+JOIN Train_Time AS t_ti ON t.id=t_ti.train_id JOIN TIMES AS ti ON ti.id=t_ti.time_id /*joining train time*/
+JOIN DATES_BK AS tmp ON tmp.id = tic.date_of_bk
+WHERE {Conditions}
+
 
 /* Exmaple */
- SELECT p.passenger_name,
-		p.age, gen.gender, s.seat_no, sc.class, dt.dates_val, tmp.dates_val,  tic.ticket_number, t.id, tic.is_cancelled
-FROM TICKET AS tic JOIN PASSENGERS as p ON p.ticket_id=tic.ticket_number
-JOIN static_GENDER 	   AS gen ON gen.id = p.gender_id
-JOIN TRAIN 		       AS t   ON t.id   = tic.ticket_train_id
-JOIN static_TRAIN_DET  AS det ON det.id = t.train_det
-JOIN SEAT 			   AS s   ON t.id   = s.train_id  AND s.id=p.passenger_seat
-JOIN static_SEAT_CLASS AS sc  ON sc.id  = s.class_id
-JOIN DATES			   AS dt  ON dt.id  = t.date_id 
-JOIN DATES_VIEW        AS tmp ON tmp.id = tic.date_of_bk
-WHERE tic.is_cancelled != 0
+SELECT dt.dates_val, tmp.dates_val, n.train_names, ti.time, des.destination, tic.ticket_number,  tic.no_of_passengers, tic.contact_name, gen.gender,
+	p.passenger_name,s.seat_no
+FROM PASSENGERS AS p JOIN TICKET AS tic ON tic.ticket_number=p.ticket_id
+JOIN static_GENDER AS gen ON gen.id = p.gender_id
+JOIN TRAIN AS t ON t.id   = tic.ticket_train_id
+JOIN SEAT AS s ON t.id = s.train_id  AND s.id=p.passenger_seat
+JOIN static_SEAT_CLASS AS sc ON sc.id  = s.class_id
+JOIN Train_Dates AS t_dt ON t.id=t_dt.train_id JOIN DATES AS dt ON dt.id=t_dt.dates_id /*joining train dates*/
+JOIN Train_Name AS t_n ON t.id=t_n.train_id JOIN NAME AS n ON n.id=t_n.name_id /*joining train name*/
+JOIN Train_Dest AS t_des ON t.id=t_des.train_id JOIN DEST AS des ON des.id=t_des.dest_id /*joining train destination*/
+JOIN Train_Time AS t_ti ON t.id=t_ti.train_id JOIN TIMES AS ti ON ti.id=t_ti.time_id /*joining train time*/
+JOIN DATES_BK AS tmp ON tmp.id = tic.date_of_bk
+WHERE tic.ticket_number=1002
 ```
-***`Note:`*** While selecting the complete model a copy of `DATES` named `DATES_VIEW` is created and is droped after the selection
-
-```sql
-CREATE TABLE IF NOT EXISTS DATES_VIEW AS SELECT * FROM DATES;
-DROP TABLE DATES_VIEW
-```
-
+***`Note:`***
+- ### While selecting the complete model a copy of `DATES` named `DATES_BK` is created and is droped after the selection
+1. ```sql
+    CREATE TABLE IF NOT EXISTS DATES_BK AS SELECT * FROM DATES;
+    ```
+2. ```sql
+    DROP TABLE DATES_BK
+    ```
+- ### Use `DISTINCT` keywoed immediately after `SELECT` to remove duplicates in the view
+- ```sql
+    SELECT DISTINCT {Columns} FROM {TABLES}
 ## Selections
 ```sql
 /* Joining 3 tables and Printing values */ 
