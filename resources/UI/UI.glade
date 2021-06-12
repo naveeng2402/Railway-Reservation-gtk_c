@@ -146,12 +146,13 @@ Railway Reservation System &lt;/span&gt;&lt;/b&gt;</property>
                         <property name="label_xalign">0</property>
                         <property name="shadow_type">none</property>
                         <child>
-                          <object class="GtkScrolledWindow" id="load_scrl">
-                            <property name="name">load_imgs</property>
+                          <object class="GtkScrolledWindow" id="load_img_scrl">
+                            <property name="name">load_img</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="min_content_width">1</property>
                             <property name="min_content_height">1</property>
+                            <signal name="size-allocate" handler="size_allocate" swapped="no"/>
                             <child>
                               <object class="GtkViewport">
                                 <property name="visible">True</property>
