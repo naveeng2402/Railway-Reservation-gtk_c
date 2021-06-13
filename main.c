@@ -1,24 +1,36 @@
 #include <gtk/gtk.h>
+#include <pthread.h>
 #include "structures.h"
 #include "slots.h"
-// #include "debug.h"
+#include "functions.h"
+
+#ifdef _WIN32 // Adding the module for sleep function(Platform dependent) 
+    #include <Windows.h>
+#else
+#include <unistd.h>
+#endif
 
 /* Function Declarations */
 void get_widgets(GtkBuilder*, DATA*);
-void get_imgs(GtkBuilder*, GHashTable*);
 void populate_tbl(GtkBuilder*, GHashTable*, char*, char*,char*);
-void set_img(DATA*);
+void get_imgs(GtkBuilder*, GHashTable*);
+
+void SLEEP(int);
 
 /* Callback Declarations */
 
 
-/* Signals */
+/* Slots */
 G_MODULE_EXPORT void size_allocate(GtkWidget*, GtkAllocation*, gpointer);
+
+/* Thread Functions */
+void* start_load(void*);
 
 int main(int argc, char *argv[])
 {
     GtkBuilder *builder;
     DATA *data = g_slice_new(DATA);
+    pthread_t start_thread;
 
     data->pixbuffs = g_hash_table_new(g_str_hash,NULL); // Initialising the hash table
 
@@ -36,49 +48,12 @@ int main(int argc, char *argv[])
 
     g_signal_connect(G_OBJECT (data->win), "destroy",G_CALLBACK(gtk_main_quit), NULL);
 
+    // Creating the thread
+    pthread_create(&start_thread,NULL,start_load,data);
+    
     gtk_widget_show(data->win);
 
     gtk_main();
 
     return 0;
-}
-
-void get_widgets(GtkBuilder* b, DATA* d)
-{   
-    //APP roots
-    d->win = GTK_WIDGET(gtk_builder_get_object(b,"win"));
-    d->stack = GTK_WIDGET(gtk_builder_get_object(b,"stack"));
-
-    //Widgets for load_scr
-    d->load.scr = GTK_WIDGET(gtk_builder_get_object(b,"load_scr"));
-    d->load.progress_bar = GTK_WIDGET(gtk_builder_get_object(b,"load_scr_progress_bar"));
-
-}
-
-/* Getting Images and setting their pixbuff and scaling */
-void get_imgs(GtkBuilder* b,GHashTable* tbl)
-{
-    populate_tbl(b,tbl,"load_img_scrl","load_img","train");    
-}
-
-void populate_tbl(GtkBuilder* b, GHashTable* tbl, char* scrl_name, char* img_name, char* img_path)
-{
-    GtkWidget *scrl, *img;
-    GdkPixbuf *pix;
-    GList *lst = NULL;
-
-    // Getting the widgets and setting the pixbuff
-    scrl = GTK_WIDGET(gtk_builder_get_object(b,scrl_name));
-    img  = GTK_WIDGET(gtk_builder_get_object(b,img_name));
-    pix = gdk_pixbuf_new_from_resource(g_strdup_printf("/icons/%s.svg",img_path),NULL);
-
-    gtk_image_set_from_pixbuf(GTK_IMAGE(img),gdk_pixbuf_copy(pix));
-
-    // Making the list
-    lst = g_list_append(lst, scrl);
-    lst = g_list_append(lst, img);
-    lst = g_list_append(lst, pix);
-
-    // Adding the list to hash table
-    g_hash_table_insert(tbl,(gpointer)gtk_widget_get_name(scrl),lst);
 }

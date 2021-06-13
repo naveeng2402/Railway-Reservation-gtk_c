@@ -1,9 +1,8 @@
-#ifndef slots
-#define slots
+#ifndef SLOTS
+#define SLOTS
 
 #include <gtk/gtk.h>
 #include "structures.h"
-#include "debug.h"
 
 void size_allocate(GtkWidget* w, GtkAllocation* allocation, gpointer data)
 {
@@ -13,6 +12,10 @@ void size_allocate(GtkWidget* w, GtkAllocation* allocation, gpointer data)
     GtkImage *img = (GtkImage*) g_list_nth_data(lst, 1);
     GdkPixbuf *pix = (GdkPixbuf*) g_list_nth_data(lst, 2);
     GdkPixbuf *img_pix = gtk_image_get_pixbuf(img);
+
+    // printf("\t\tSIGNAL\n");
+    // printf(" %s - %d\n", gtk_widget_get_name(w),GTK_IS_IMAGE(img));
+    // printf(" %s - %d\n", gtk_widget_get_name(w),GTK_IS_SCROLLED_WINDOW(w));
 
     // Changing the size
     if(allocation->width != gdk_pixbuf_get_width(img_pix) || allocation->height != gdk_pixbuf_get_height(img_pix))
