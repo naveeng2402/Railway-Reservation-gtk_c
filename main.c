@@ -22,6 +22,7 @@ void SLEEP(int);
 
 /* Slots */
 G_MODULE_EXPORT void size_allocate(GtkWidget*, GtkAllocation*, gpointer);
+G_MODULE_EXPORT void welcome_info(GtkButton*,gpointer);
 
 /* Thread Functions */
 void* start_load(void*);

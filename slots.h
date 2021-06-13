@@ -24,4 +24,21 @@ void size_allocate(GtkWidget* w, GtkAllocation* allocation, gpointer data)
     }
 }
 
+void welcome_info(GtkButton* btn, gpointer data)
+{
+    /*
+        This is an unusual function as it uses GtkDialog.
+          * In this function a new builder object is created due to a wierd property of dialog that it works only once if it created as other widgets, to tackle that each time the button is clicked a new dialog is created and is shown then destroyed immediately after it is closed
+          * The image in this Dialog box does not support dynamic scaling implemented to others
+          * The "Ok" button works because a response id is set in glade file
+    */
+
+    GtkBuilder *b = gtk_builder_new_from_resource("/UI/UI.glade");
+    GtkDialog *dig = GTK_DIALOG(gtk_builder_get_object(b,"Info_dialog"));
+    gtk_dialog_run(dig);
+    // printf("Destroying Dialog");
+    g_object_unref(b);
+    gtk_widget_destroy(GTK_WIDGET(dig));
+}
+
 #endif
