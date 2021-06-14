@@ -18,49 +18,52 @@ CREATE TABLE "SEAT" (
     "seat_no"	integer,
     "is_booked"	integer DEFAULT 0,
     "is_window"	integer,
-    "train_id"	integer,
-    "class_id"	integer
-)
+    "class_id"	integer,
+    "train_id"	integer
+);
 
 CREATE TABLE "TRAIN" (
-    "id"	integer PRIMARY KEY AUTOINCREMENT
-)
+	"id"	integer PRIMARY KEY AUTOINCREMENT,
+	"is_train_full"	INTEGER,
+	/*"is_default"	INTEGER*/
+);
 
 CREATE TABLE "Train_Dates" (
 	"train_id"	INTEGER,
 	"dates_id"	INTEGER
-)
+);
 
 CREATE TABLE "DEST" (
 	"id"	INTEGER PRIMARY KEY AUTOINCREMENT,
 	"destination"	TEXT,
-	"price"	REAL
-)
+	"price"	REAL,
+    UNIQUE(destination , price)
+);
 
 CREATE TABLE "Train_Dest" (
 	"train_id"	INTEGER,
 	"dest_id"	INTEGER
-)
+);
 
 CREATE TABLE "TIMES" (
 	"id"	INTEGER PRIMARY KEY AUTOINCREMENT,
-	"time"	TEXT
-)
+	"time"	TEXT UNIQUE
+);
 
 CREATE TABLE "Train_Time" (
 	"train_id"	INTEGER,
 	"time_id"	INTEGER
-)
+);
 
 CREATE TABLE "NAME" (
 	"id"	INTEGER PRIMARY KEY AUTOINCREMENT,
-	"train_names"	TEXT
-)
+	"train_names"	TEXT UNIQUE
+);
 
 CREATE TABLE "Train_Name" (
 	"train_id"	INTEGER,
 	"name_id"	INTEGER
-)
+);
 
 CREATE TABLE "static_SEAT_CLASS" (
     "id"	integer,
@@ -79,16 +82,16 @@ CREATE TABLE "TICKET" (
     "time_of_bk"	text,
     "date_of_bk"	integer,
     "ticket_train_id"	integer
-)
+);
 
 CREATE TABLE "PASSENGERS" (
     "id"	integer PRIMARY KEY AUTOINCREMENT,
     "passenger_name"	text,
     "age"	integer,
     "gender_id"	integer,
-    "passenger_seat"	INTEGER
-    "ticket_id"	integer,
-)
+    "passenger_seat"	INTEGER,
+    "ticket_id"	integer
+);
 
 CREATE TABLE static_GENDER (
     id integer PRIMARY KEY AUTOINCREMENT,
@@ -305,3 +308,13 @@ JOIN DATES			   AS dt  ON dt.id  = t.date_id
 JOIN DATES_VIEW        AS tmp ON tmp.id = tic.date_of_bk
 WHERE tic.is_cancelled != 0
 ```
+
+## NOTE:
+
+* In `design.drawio` There will be tables named **DEFAULT_TRAINS**, **Def_Train_Dest**, **Def_Train_Name**, and **Def_Train_Train**.
+
+* These used by the code to determain whether the train arrives daily or not.
+
+* If a default train is removed all its values from bridge tables(Tables Starting with ***Def*** ) are to be deleted.
+
+* These tables are not included in ***`design.db`***
