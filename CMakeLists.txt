@@ -29,3 +29,4 @@ target_link_libraries (${PROJECT_NAME} LINK_PUBLIC sqlite3)
 
 # Adding custom files
 FILE(COPY resources/UI/UI.glade DESTINATION "${CMAKE_BINARY_DIR}/resources/UI/")
+FILE(COPY rsc/data DESTINATION "${CMAKE_BINARY_DIR}/rsc/")
