@@ -24,7 +24,7 @@ CREATE TABLE "SEAT" (
 
 CREATE TABLE "TRAIN" (
 	"id"	integer PRIMARY KEY AUTOINCREMENT,
-	"is_train_full"	INTEGER,
+	"is_train_full"	INTEGER
 	/*"is_default"	INTEGER*/
 );
 
@@ -97,6 +97,28 @@ CREATE TABLE static_GENDER (
     id integer PRIMARY KEY AUTOINCREMENT,
     gender text
 );
+
+        /* Default Trains */
+
+CREATE TABLE "DEFAULT_TRAINS" (
+	"id"	INTEGER PRIMARY KEY AUTOINCREMENT
+);
+
+CREATE TABLE "Def_Train_Dest" (
+	"train_id"	INTEGER,
+	"dest_id"	INTEGER
+);
+
+CREATE TABLE "Def_Train_Name" (
+	"train_id"	INTEGER,
+	"name_id"	INTEGER
+);
+
+CREATE TABLE "Def_Train_Time" (
+	"train_id"	INTEGER,
+	"time_id"	INTEGER
+);
+
 ```
 
 # INSERTING DATA
@@ -239,7 +261,7 @@ JOIN Train_Dest AS t_des ON t.id=t_des.train_id JOIN DEST AS des ON des.id=t_des
 JOIN Train_Time AS t_ti ON t.id=t_ti.train_id JOIN TIMES AS ti ON ti.id=t_ti.time_id /*joining train time*/
 WHERE des.destination="Thiruvallur" AND dt.dates_val="03-06-2021"
 ```
->SELECTION SKELETON FOR WHOLE MODEL(for operations with ticket)
+>SELECTION TEMPLATE FOR WHOLE MODEL(for operations with ticket)
 ```sql
 SELECT {Columns}
 FROM PASSENGERS AS p JOIN TICKET AS tic ON tic.ticket_number=p.ticket_id
@@ -281,6 +303,22 @@ WHERE tic.ticket_number=1002
 - ### Use `DISTINCT` keywoed immediately after `SELECT` to remove duplicates in the view
 - ```sql
     SELECT DISTINCT {Columns} FROM {TABLES}
+
+> SELECTION TEMPLATE FOR DEFAULT_TRAINS
+
+```SQL
+SELECT {Columns}
+FROM DEFAULT_TRAINS JOIN Def_Train_Dest ON DEFAULT_TRAINS.id=Def_Train_Dest.train_id JOIN DEST ON DEST.id = Def_Train_Dest.dest_id
+JOIN Def_Train_Name ON Def_Train_Name.train_id=DEFAULT_TRAINS.id JOIN NAME ON Def_Train_Name.name_id=NAME.id 
+JOIN Def_Train_Time ON Def_Train_Time.train_id=DEFAULT_TRAINS.id JOIN TIMES ON Def_Train_Time.time_id=TIMES.id 
+
+/* Example */
+SELECT DEFAULT_TRAINS.id, NAME.train_names, DEST.destination, TIMES.time, DEST.price
+FROM DEFAULT_TRAINS JOIN Def_Train_Dest ON DEFAULT_TRAINS.id=Def_Train_Dest.train_id JOIN DEST ON DEST.id = Def_Train_Dest.dest_id
+JOIN Def_Train_Name ON Def_Train_Name.train_id=DEFAULT_TRAINS.id JOIN NAME ON Def_Train_Name.name_id=NAME.id 
+JOIN Def_Train_Time ON Def_Train_Time.train_id=DEFAULT_TRAINS.id JOIN TIMES ON Def_Train_Time.time_id=TIMES.id 
+```
+
 ## Selections
 ```sql
 /* Joining 3 tables and Printing values */ 
