@@ -2,7 +2,15 @@
 #define SLOTS
 
 #include <gtk/gtk.h>
+#include <pthread.h>
 #include "structures.h"
+
+void quit(AtkWindow *win, gpointer data)
+{
+    DATA *d = data;
+    pthread_join(d->start_thread,NULL);
+    gtk_main_quit();
+}
 
 void size_allocate(GtkWidget* w, GtkAllocation* allocation, gpointer data)
 {

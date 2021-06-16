@@ -32,6 +32,7 @@ int callback_get_default_ids(void *, int, char **, char **);
 int callback_get_train_ids(void *, int, char **, char **);
 
 /* Slots */
+G_MODULE_EXPORT void quit(AtkWindow*, gpointer);
 G_MODULE_EXPORT void size_allocate(GtkWidget*, GtkAllocation*, gpointer);
 G_MODULE_EXPORT void welcome_info(GtkButton*,gpointer);
 
@@ -42,7 +43,6 @@ int main(int argc, char *argv[])
 {
     GtkBuilder *builder;
     DATA *data = g_slice_new(DATA);
-    pthread_t start_thread;
 
     data->pixbuffs = g_hash_table_new(g_str_hash,NULL); // Initialising the hash table
 
@@ -58,12 +58,10 @@ int main(int argc, char *argv[])
     // Free up the memory taken by the builder
     g_object_unref(builder);
 
-    g_signal_connect(G_OBJECT (data->win), "destroy",G_CALLBACK(gtk_main_quit), NULL);
-
     gtk_widget_show(data->win);
 
     // Creating the thread
-    pthread_create(&start_thread,NULL,start_load,data);
+    pthread_create(&(data->start_thread),NULL,start_load,data);
     
     gtk_main();
 

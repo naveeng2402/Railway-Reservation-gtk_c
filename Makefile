@@ -1,4 +1,5 @@
 default:
+	make res
 	gcc -g main.c resources/rsc.c -o bin/app `pkg-config --cflags --libs gtk+-3.0 sqlite3` -export-dynamic && bin/app
 
 res:

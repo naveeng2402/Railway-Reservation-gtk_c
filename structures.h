@@ -24,6 +24,8 @@ typedef struct _welcome_scr
 // Structure Containing all the data
 typedef struct _data
 {
+    pthread_t start_thread; // Threads
+
     GtkWidget *win ; GtkWidget *stack;
     
     W_load_scr load;
