@@ -28,6 +28,15 @@ void get_widgets(GtkBuilder* b, DATA* d)
     d->welcome.dwnld_tic = GTK_WIDGET(gtk_builder_get_object(b,"welcome_scr_dwnld_tic_btn"));
     d->welcome.cncl_tic = GTK_WIDGET(gtk_builder_get_object(b,"welcome_scr_cncl_tic_btn"));
 
+    // Widgets for choose_train
+    d->choose_train.scr = GTK_WIDGET(gtk_builder_get_object(b,"choose_train_scr"));
+    d->choose_train.back = GTK_WIDGET(gtk_builder_get_object(b,"choose_train_scr_back_btn"));
+    d->choose_train.dest = GTK_WIDGET(gtk_builder_get_object(b,"choose_train_scr_dest"));
+    d->choose_train.date = GTK_WIDGET(gtk_builder_get_object(b,"choose_train_scr_date"));
+    d->choose_train.get_train = GTK_WIDGET(gtk_builder_get_object(b,"choose_train_scr_get_train"));
+    d->choose_train.revealer = GTK_WIDGET(gtk_builder_get_object(b,"choose_train_scr_revealer"));
+    d->choose_train.lst_box = GTK_WIDGET(gtk_builder_get_object(b,"choose_train_scr_lst_box"));
+
 }
 
 /* Adding data to the hashtable */
@@ -67,6 +76,7 @@ void get_imgs(GtkBuilder* b,GHashTable* tbl)
     populate_tbl(b,tbl,"welcome_scr_book_tic_scrl","welcome_scr_book_tic_img","book_ticket");
     populate_tbl(b,tbl,"welcome_scr_dwnld_tic_scrl","welcome_scr_dwnld_tic_img","view_ticket");
     populate_tbl(b,tbl,"welcome_scr_cncl_tic_scrl","welcome_scr_cncl_tic_img","cancel_ticket");
+    populate_tbl(b,tbl,"choose_train_scr_back_scrl","choose_train_scr_back_ico","back");
 
 }
 
@@ -77,7 +87,7 @@ void get_imgs(GtkBuilder* b,GHashTable* tbl)
 /* Gets the dates for 3 days */
 void add_dates(sqlite3* db, int *dates_id, int *is_already_in_db)
 {
-    time_t *tme = malloc(sizeof(time_t));
+    time_t *tme = malloc(sizeof(time_t)), *unix_time=calloc(3,sizeof(time_t));
     struct tm *tm;
     char *today = malloc(1);
     char **dates= calloc(3,sizeof(char*));
@@ -94,9 +104,11 @@ void add_dates(sqlite3* db, int *dates_id, int *is_already_in_db)
     {
         dates[i] = malloc(1);
         tm->tm_mday += i==0?0:1;
+        tm->tm_hour = 23; tm->tm_min=0; tm->tm_sec=0;
         *tme=mktime(tm);  /* Does the dates arithmetic */
         tm=localtime(tme);
         strftime(dates[i],-1,"%d-%m-%Y",tm);
+        unix_time[i]=*tme;
     }
 
     /*Checking whether the date already exists*/
@@ -109,7 +121,7 @@ void add_dates(sqlite3* db, int *dates_id, int *is_already_in_db)
     /* Inserting dates */
     for (int i = 0; i < 3; i++)
     {
-        sql = g_strdup_printf("INSERT OR IGNORE INTO DATES (\"dates_val\") VALUES (\"%s\");", dates[i]);
+        sql = g_strdup_printf("INSERT OR IGNORE INTO DATES (\"dates_val\",\"unix_time\") VALUES (\"%s\",%ld);", dates[i],unix_time[i]);
         sqlite3_exec(db, sql, NULL, NULL, NULL);        
     }
     
@@ -235,6 +247,11 @@ void SLEEP(int s)
 
 void* start_load(void* arg)
 {
+    /*  This function is the one that is started at the time of initial loading, this does the following actions
+            * Adds dates entires to the DATES table if not already present
+            * Adds train entries to the TRAIN tabel using the DEFAULT set of tables as template and also generates its seats
+    */
+
     DATA *d = (DATA*) arg; // Typecasting the argument
 
     gtk_label_set_markup(GTK_LABEL(d->load.title),"<b><span size=\"30000\"> Welcome to \n Railway Reservation System </span></b>");
@@ -290,5 +307,50 @@ void* start_load(void* arg)
     gtk_stack_set_visible_child(GTK_STACK(d->stack), d->welcome.scr);
 }
 
+void* get_dest_date(void* arg)
+{
+    /* This function is called during the page change from welcome_scr to choose_trains under book tickets, this does the following :
+        * Gets all the destinations and adds it to the combobox 
+        * Gets dates from now and 2 days after today and adds them to the combobox
+    */
+
+    W_choose_train *data = arg; 
+    sqlite3* db;
+
+    int date_len, dest_len;
+    char *sql="", **dates_val, **dest_val;
+    time_t *now=malloc(sizeof(time_t));
+
+    time(now);
+
+    sqlite3_open("rsc/data", &db);
+
+    // Getting the length
+    sql=g_strdup_printf("SELECT count(*) FROM DATES WHERE unix_time>%ld",*now);
+    sqlite3_exec(db,sql,callback_get_id,&date_len,NULL);
+    sqlite3_exec(db,"SELECT count(*) FROM DEST",callback_get_id,&dest_len,NULL);
+
+    // Allocation of memory
+    data->date_val = calloc(date_len,sizeof(char*));
+    data->dest_val = calloc(dest_len,sizeof(char*));
+
+    // Getting the values for dates and destinations
+    data->count = 0;
+    sqlite3_exec(db, "SELECT DISTINCT destination FROM DEST",callback_get_dest,data,NULL);
+
+    data->count=0;
+    sql = g_strdup_printf("SELECT DISTINCT dates_val FROM DATES WHERE unix_time>%ld",*now);
+    sqlite3_exec(db,sql,callback_get_date,data,NULL);
+
+    // Adding the data to combobox
+    for (int i = 0; i < date_len; i++) // Dates
+    {
+        gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(data->date),data->date_val[i]);
+    }
+    for (int i = 0; i < dest_len; i++)
+    {
+        gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(data->dest),data->dest_val[i]);
+    }
+}
 
 #endif

@@ -31,4 +31,24 @@ int callback_get_train_ids(void* data, int argc, char **argv, char **azColName)
     return 0;
 }
 
+int callback_get_dest(void *data, int argc, char **argv, char **azColName)
+{
+    W_choose_train *d = data;
+    d->dest_val[d->count] = calloc(strlen(argv[0]), sizeof(char));
+    strcpy(d->dest_val[d->count],argv[0]);
+
+    d->count++;
+    return 0;
+}
+
+int callback_get_date(void *data, int argc, char **argv, char **azColName)
+{
+    W_choose_train *d = data;
+    d->date_val[d->count] = calloc(strlen(argv[0]), sizeof(char));
+    strcpy(d->date_val[d->count],argv[0]);
+
+    d->count++;
+    return 0;
+}
+
 #endif

@@ -30,14 +30,19 @@ void update_is_train_full(sqlite3*, START_LOAD*);
 int callback_get_id(void *, int, char **, char **);
 int callback_get_default_ids(void *, int, char **, char **);
 int callback_get_train_ids(void *, int, char **, char **);
+int callback_get_dest(void *, int, char **, char **);
+int callback_get_date(void *, int, char **, char **);
 
 /* Slots */
 G_MODULE_EXPORT void quit(AtkWindow*, gpointer);
 G_MODULE_EXPORT void size_allocate(GtkWidget*, GtkAllocation*, gpointer);
 G_MODULE_EXPORT void welcome_info(GtkButton*,gpointer);
+G_MODULE_EXPORT void book_tic(GtkButton*,gpointer);
+G_MODULE_EXPORT void back_to_welcome(GtkButton*,gpointer);
 
 /* Thread Functions */
 void* start_load(void*);
+void* get_dest_date(void*);
 
 int main(int argc, char *argv[])
 {

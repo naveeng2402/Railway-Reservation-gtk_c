@@ -4,11 +4,13 @@
 #include <gtk/gtk.h>
 #include <pthread.h>
 #include "structures.h"
+#include "functions.h"
 
 void quit(AtkWindow *win, gpointer data)
 {
     DATA *d = data;
     pthread_join(d->start_thread,NULL);
+    pthread_join(d->choose_train.dest_date_thread, NULL);
     gtk_main_quit();
 }
 
@@ -47,6 +49,20 @@ void welcome_info(GtkButton* btn, gpointer data)
     // printf("Destroying Dialog");
     g_object_unref(b);
     gtk_widget_destroy(GTK_WIDGET(dig));
+}
+
+void book_tic(GtkButton* btn, gpointer data)
+{
+    DATA *d = data;
+    gtk_stack_set_transition_type(GTK_STACK(d->stack),GTK_STACK_TRANSITION_TYPE_SLIDE_LEFT_RIGHT);
+    pthread_create(&(d->choose_train.dest_date_thread),NULL,get_dest_date,&(d->choose_train));
+    gtk_stack_set_visible_child(GTK_STACK(d->stack),d->choose_train.scr);
+}
+
+void back_to_welcome(GtkButton* btn, gpointer data)
+{
+    DATA *d=data;
+    gtk_stack_set_visible_child(GTK_STACK(d->stack),d->welcome.scr);
 }
 
 #endif

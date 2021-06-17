@@ -21,6 +21,22 @@ typedef struct _welcome_scr
               *dwnld_tic, *cncl_tic;    // Buttons
 }W_welcome_scr;
 
+// Structure Containing widgets of choose train
+typedef struct _choose_train
+{
+    GtkWidget *scr; // Grid of the screen
+
+    GtkWidget *back, *get_train; // buttons
+    GtkWidget *dest, *date; // combobox
+    GtkWidget *revealer;
+    GtkWidget *lst_box;
+
+    pthread_t dest_date_thread; // Thread
+    int count; // Used in callbacks
+    char **dest_val, **date_val; // arrays to store data 
+
+}W_choose_train;
+
 // Structure Containing all the data
 typedef struct _data
 {
@@ -30,6 +46,7 @@ typedef struct _data
     
     W_load_scr load;
     W_welcome_scr welcome;
+    W_choose_train choose_train;
     
     GHashTable *pixbuffs; // Hash table to store gdkpixbuffs, GtkScrolledWindow and GtkImages  
 }DATA;
