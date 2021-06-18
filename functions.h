@@ -191,7 +191,7 @@ void add_trains(sqlite3* db, START_LOAD* data, int dates_id, int def_train) /* d
             INSERT INTO Train_Dest (\"train_id\", \"dest_id\") VALUES(%d, %d); \
             INSERT INTO Train_Name (\"train_id\", \"name_id\") VALUES(%d, %d); \
             INSERT INTO Train_Time (\"train_id\", \"time_id\") VALUES(%d, %d);",
-            data->train_id, data->dates_id[def_train],
+            data->train_id, dates_id,
             data->train_id, data->dest_id[def_train],
             data->train_id, data->name_id[def_train],
             data->train_id, data->time_id[def_train]
@@ -299,7 +299,7 @@ void* start_load(void* arg)
     gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(d->load.progress_bar),0.9);
     SLEEP(1);
     
-    update_is_train_full(db,data);
+    // update_is_train_full(db,data);
 
     sqlite3_close(db); /* Closes the db */
 
@@ -351,6 +351,8 @@ void* get_dest_date(void* arg)
     {
         gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(data->dest),data->dest_val[i]);
     }
+
+    sqlite3_close(db);
 }
 
 #endif
