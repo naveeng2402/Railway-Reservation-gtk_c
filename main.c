@@ -32,6 +32,10 @@ int callback_get_default_ids(void *, int, char **, char **);
 int callback_get_train_ids(void *, int, char **, char **);
 int callback_get_dest(void *, int, char **, char **);
 int callback_get_date(void *, int, char **, char **);
+int callback_get_lstbox_content(void *, int, char **, char **);
+int callback_get_avail_seats(void *, int, char **, char **);
+
+void rem_lst_wgts(GtkWidget*, gpointer);
 
 /* Slots */
 G_MODULE_EXPORT void quit(AtkWindow*, gpointer);
@@ -39,10 +43,13 @@ G_MODULE_EXPORT void size_allocate(GtkWidget*, GtkAllocation*, gpointer);
 G_MODULE_EXPORT void welcome_info(GtkButton*,gpointer);
 G_MODULE_EXPORT void book_tic(GtkButton*,gpointer);
 G_MODULE_EXPORT void back_to_welcome(GtkButton*,gpointer);
+G_MODULE_EXPORT void get_available_trains(GtkButton*,gpointer);
+G_MODULE_IMPORT void train_selected(GtkListBoxRow*, gpointer);
 
 /* Thread Functions */
 void* start_load(void*);
 void* get_dest_date(void*);
+void* get_list_content(void*);
 
 int main(int argc, char *argv[])
 {

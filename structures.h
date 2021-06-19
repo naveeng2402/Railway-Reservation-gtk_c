@@ -31,9 +31,11 @@ typedef struct _choose_train
     GtkWidget *revealer;
     GtkWidget *lst_box;
 
-    pthread_t dest_date_thread; // Thread
-    int count; // Used in callbacks
-    char **dest_val, **date_val; // arrays to store data 
+    pthread_t dest_date_thread, get_trains_thread; // Thread
+    int count, len; // Used in callbacks
+    char *selected_dest, *selected_date;
+    char **dest_val, **date_val, ***lst_box_content; // arrays to store data 
+    /* ***lst_box_content is a 2d array of string the cols of each arrays are listed in the enum lstbox_content */
 
 }W_choose_train;
 
@@ -73,6 +75,14 @@ enum default_trains
     NAME_ID,
     DEST_ID,
     TIME_ID
+};
+
+enum lstbox_content
+{
+    LST_BOX_TRAIN_ID,
+    TIME,
+    NAME,
+    AVAIL_SEATS
 };
 
 enum static_SEAT_CLASS

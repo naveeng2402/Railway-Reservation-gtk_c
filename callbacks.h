@@ -51,4 +51,33 @@ int callback_get_date(void *data, int argc, char **argv, char **azColName)
     return 0;
 }
 
+int callback_get_lstbox_content(void *data, int argc, char **argv, char **azColName)
+{
+    W_choose_train *d = data;
+
+    d->lst_box_content[d->count] = calloc(4, sizeof(char*));
+
+    for (int i = 0; i < argc; i++)
+    {
+        d->lst_box_content[d->count][i] = calloc(strlen(argv[i]),sizeof(char));
+        strcpy(d->lst_box_content[d->count][i],argv[i]);
+    }
+
+    d->count++;
+    return 0;
+}
+
+int callback_get_avail_seats(void *data, int argc, char **argv, char **azColName)
+{
+    char *d = data;
+    strcpy(d,argv[0]);
+    return 0;
+}
+
+void rem_lst_wgts(GtkWidget *w, gpointer data)
+{
+    GtkContainer *c = data;
+    gtk_container_remove(c,w);
+}
+
 #endif

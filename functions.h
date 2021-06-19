@@ -147,7 +147,7 @@ void get_len(sqlite3* db, START_LOAD* data)
 
 void get_ids(sqlite3 *db, START_LOAD *data)
 {
-    /* Gets the ids to fill trains using default trains tabeles */
+    /* Gets the ids to fill trains using default trains tables */
     char *sql = "SELECT DEFAULT_TRAINS.id, Def_Train_Name.name_id, Def_Train_Dest.dest_id, Def_Train_Time.time_id \
                 FROM DEFAULT_TRAINS JOIN Def_Train_Dest ON DEFAULT_TRAINS.id=Def_Train_Dest.train_id JOIN DEST ON DEST.id = Def_Train_Dest.dest_id \
                 JOIN Def_Train_Name ON Def_Train_Name.train_id=DEFAULT_TRAINS.id JOIN NAME ON Def_Train_Name.name_id=NAME.id \
@@ -203,13 +203,14 @@ void add_trains(sqlite3* db, START_LOAD* data, int dates_id, int def_train) /* d
 
 void update_is_train_full(sqlite3* db, START_LOAD* data)
 {   
+    /*BUGGY AND NOT USED*/
     char *sql;
     int result;
 
     /* Getting Train ids that are not full */
     data->count = 0;
     sql = "SELECT id FROM TRAIN WHERE is_train_full=0";
-    sqlite3_exec(db,sql,callback_get_train_ids, data, NULL);
+    sqlite3_exec(db,sql,callback_get_train_ids, data, NULL); /* The bug in the function that can't be found */
 
     /* Getting the number of trains that are not full */ 
     sql = "SELECT count(*) FROM TRAIN WHERE is_train_full=0";
@@ -343,6 +344,11 @@ void* get_dest_date(void* arg)
     sqlite3_exec(db,sql,callback_get_date,data,NULL);
 
     // Adding the data to combobox
+    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(data->date),"Select Date");
+    gtk_combo_box_set_active(GTK_COMBO_BOX(data->date),0);
+    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(data->dest),"Select Destination");
+    gtk_combo_box_set_active(GTK_COMBO_BOX(data->dest),0);
+
     for (int i = 0; i < date_len; i++) // Dates
     {
         gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(data->date),data->date_val[i]);
@@ -352,6 +358,67 @@ void* get_dest_date(void* arg)
         gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(data->dest),data->dest_val[i]);
     }
 
+    sqlite3_close(db);
+}
+
+void* get_list_content(void* arg)
+{
+    /* This function is called when the get trains buttton is clicked which is in the choose train page, this does the following :
+        * Gets the data from the sql which is used to fill the list_box in the choose train page
+        * The details are Train no, Time, Name, No of available seats
+        * The data is stored in a 2d array DATA.W_choose_train.lst_box_content
+    */
+
+    W_choose_train *data = arg;
+    sqlite3 *db;
+
+    char *sql="";
+
+    sqlite3_open("rsc/data", &db);
+
+    sql = g_strdup_printf("SELECT count(DISTINCT t.id) FROM \
+                            SEAT AS s JOIN static_SEAT_CLASS AS sc ON s.class_id=sc.id \
+                            JOIN TRAIN AS t ON t.id=s.train_id \
+                            JOIN Train_Dates AS t_dt ON t.id=t_dt.train_id JOIN DATES AS dt ON dt.id=t_dt.dates_id \
+                            JOIN Train_Name AS t_n ON t.id=t_n.train_id JOIN NAME AS n ON n.id=t_n.name_id \
+                            JOIN Train_Dest AS t_des ON t.id=t_des.train_id JOIN DEST AS des ON des.id=t_des.dest_id \
+                            JOIN Train_Time AS t_ti ON t.id=t_ti.train_id JOIN TIMES AS ti ON ti.id=t_ti.time_id \
+                            WHERE des.destination=\"%s\" AND dt.dates_val=\"%s\" AND s.is_booked=0",
+                            data->selected_dest,data->selected_date);
+    sqlite3_exec(db, sql, callback_get_id,&(data->len),NULL);
+    printf("len %d\n",data->len);
+
+    if (data->len==0)     
+    {
+        printf("Sorry no trains are available to %s on %s\n",data->selected_dest,data->selected_date);
+    }
+    else
+    {
+        data->lst_box_content = calloc(data->len,sizeof(char**));
+        data->count = 0;
+        /* Getting the train details */
+        sql = g_strdup_printf("SELECT DISTINCT t.id, ti.time, n.train_names FROM \
+                            SEAT AS s JOIN static_SEAT_CLASS AS sc ON s.class_id=sc.id \
+                            JOIN TRAIN AS t ON t.id=s.train_id \
+                            JOIN Train_Dates AS t_dt ON t.id=t_dt.train_id JOIN DATES AS dt ON dt.id=t_dt.dates_id \
+                            JOIN Train_Name AS t_n ON t.id=t_n.train_id JOIN NAME AS n ON n.id=t_n.name_id \
+                            JOIN Train_Dest AS t_des ON t.id=t_des.train_id JOIN DEST AS des ON des.id=t_des.dest_id \
+                            JOIN Train_Time AS t_ti ON t.id=t_ti.train_id JOIN TIMES AS ti ON ti.id=t_ti.time_id \
+                            WHERE des.destination=\"%s\" AND dt.dates_val=\"%s\" AND s.is_booked=0",
+                            data->selected_dest,data->selected_date);
+        sqlite3_exec(db,sql,callback_get_lstbox_content,data,NULL);
+        
+        /* Get the number of available seats */
+        for (int i = 0; i < data->len; i++)
+        {
+            data->count = i;
+            sql = g_strdup_printf("SELECT count(*) FROM \
+                            SEAT WHERE is_booked=0 and train_id=\"%s\"",data->lst_box_content[i][LST_BOX_TRAIN_ID]);
+            data->lst_box_content[i][AVAIL_SEATS] = calloc(3,sizeof(char)); /*seat is a 3 digit number*/
+            sqlite3_exec(db,sql,callback_get_avail_seats,data->lst_box_content[i][AVAIL_SEATS],NULL);
+        }
+        
+    }
     sqlite3_close(db);
 }
 

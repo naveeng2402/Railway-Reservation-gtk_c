@@ -1080,9 +1080,6 @@ TITLE LABEL&lt;/span&gt;&lt;/b&gt;</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="active">0</property>
-                        <items>
-                          <item id="0" translatable="yes"> Select Destination</item>
-                        </items>
                       </object>
                       <packing>
                         <property name="left_attach">1</property>
@@ -1096,6 +1093,7 @@ TITLE LABEL&lt;/span&gt;&lt;/b&gt;</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
                         <property name="margin_top">5</property>
+                        <signal name="clicked" handler="get_available_trains" swapped="no"/>
                       </object>
                       <packing>
                         <property name="left_attach">1</property>
@@ -1108,9 +1106,6 @@ TITLE LABEL&lt;/span&gt;&lt;/b&gt;</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="active">0</property>
-                        <items>
-                          <item id="0" translatable="yes">Select Date</item>
-                        </items>
                       </object>
                       <packing>
                         <property name="left_attach">3</property>
@@ -1221,11 +1216,13 @@ TITLE LABEL&lt;/span&gt;&lt;/b&gt;</property>
                 <property name="can_focus">False</property>
                 <property name="margin_top">5</property>
                 <property name="margin_bottom">20</property>
-                <property name="transition_type">slide-up</property>
+                <property name="transition_type">crossfade</property>
+                <property name="transition_duration">50000</property>
                 <child>
                   <object class="GtkScrolledWindow">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
+                    <property name="hscrollbar_policy">never</property>
                     <property name="shadow_type">in</property>
                     <child>
                       <object class="GtkViewport">
@@ -1236,6 +1233,7 @@ TITLE LABEL&lt;/span&gt;&lt;/b&gt;</property>
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="activate_on_single_click">False</property>
+                            <signal name="row-activated" handler="train_selected" swapped="no"/>
                             <child>
                               <object class="GtkListBoxRow">
                                 <property name="width_request">100</property>
@@ -1246,7 +1244,6 @@ TITLE LABEL&lt;/span&gt;&lt;/b&gt;</property>
                                   <object class="GtkBox">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="halign">center</property>
                                     <property name="homogeneous">True</property>
                                     <child>
                                       <object class="GtkLabel">
