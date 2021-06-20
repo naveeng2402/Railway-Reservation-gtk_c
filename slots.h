@@ -12,6 +12,7 @@ void quit(AtkWindow *win, gpointer data)
     pthread_join(d->start_thread,NULL);
     pthread_join(d->choose_train.dest_date_thread, NULL);
     pthread_join(d->choose_train.get_trains_thread,NULL);
+    pthread_join(d->choose_seats.get_seats_thread, NULL);
     gtk_main_quit();
 }
 
@@ -33,6 +34,41 @@ void size_allocate(GtkWidget* w, GtkAllocation* allocation, gpointer data)
     {
         gtk_image_set_from_pixbuf(img,gdk_pixbuf_scale_simple(pix,allocation->width,allocation->height,GDK_INTERP_BILINEAR));
     }
+}
+
+void size_allocate_flowbox(GtkWidget* w, GtkAllocation* allocation, gpointer data)
+{
+    GtkImage *img = GTK_IMAGE(g_list_nth_data(
+                                gtk_container_get_children(GTK_CONTAINER(g_list_nth_data(
+                                gtk_container_get_children(GTK_CONTAINER(w) // Scrolled Window
+                                ),0)) // Viewport
+                                ),0));
+    GdkPixbuf *img_pix = gtk_image_get_pixbuf(img);
+    const GdkPixbuf *pix;
+
+    W_choose_seats *d = data;
+
+    if ((strcmp(gtk_widget_get_name(w),"avail"))==0)
+    {   
+        // printf("\nAvail\n");
+        pix = d->pix[AVAIL_SEAT];
+    }
+    else if ((strcmp(gtk_widget_get_name(w),"booked"))==0)
+    {
+        // printf("\nBooked\n");
+        pix = d->pix[BOOKED_SEAT];
+    }
+    else if ((strcmp(gtk_widget_get_name(w),"win"))==0)
+    {
+        // printf("\nWin\n");
+        pix = d->pix[WIN_SEAT];
+    }
+
+    if(allocation->width != gdk_pixbuf_get_width(img_pix) || allocation->height != gdk_pixbuf_get_height(img_pix))
+    {
+        gtk_image_set_from_pixbuf(img,gdk_pixbuf_scale_simple(pix,allocation->width,allocation->height,GDK_INTERP_BILINEAR));
+    }
+    
 }
 
 void welcome_info(GtkButton* btn, gpointer data)
@@ -72,6 +108,20 @@ void back_to_welcome(GtkButton* btn, gpointer data)
     gtk_stack_set_visible_child(GTK_STACK(d->stack),d->welcome.scr);
 }
 
+void back_to_choose_train(GtkButton* btn, gpointer data)
+{
+    /* This fn is used to move from choose seat scr to choose train scr
+    
+    */
+    DATA *d = data;
+
+    gtk_container_foreach(GTK_CONTAINER(d->choose_seats.ac),rem_container_wgts,d->choose_seats.ac);
+    gtk_container_foreach(GTK_CONTAINER(d->choose_seats.non_ac),rem_container_wgts,d->choose_seats.non_ac);
+    gtk_container_foreach(GTK_CONTAINER(d->choose_seats.ac_sleeper),rem_container_wgts,d->choose_seats.ac_sleeper);
+    gtk_container_foreach(GTK_CONTAINER(d->choose_seats.non_ac_sleeper),rem_container_wgts,d->choose_seats.non_ac_sleeper);
+    gtk_stack_set_visible_child(GTK_STACK(d->stack),d->choose_train.scr);
+}
+
 void get_available_trains(GtkButton* btn, gpointer data)
 {
     /* 
@@ -92,13 +142,15 @@ void get_available_trains(GtkButton* btn, gpointer data)
     pthread_join(d->choose_train.get_trains_thread,NULL);
     
     // Remove all the data from the list_box if existed
-    gtk_container_foreach(GTK_CONTAINER(d->choose_train.lst_box),rem_lst_wgts,d->choose_train.lst_box);
+    gtk_container_foreach(GTK_CONTAINER(d->choose_train.lst_box),rem_container_wgts,d->choose_train.lst_box);
 
     // If no trains are available prompt its
     if (d->choose_train.len == 0)
     {
         row = gtk_list_box_row_new();
         gtk_widget_set_size_request(row,100,100);
+        gtk_list_box_row_set_selectable(GTK_LIST_BOX_ROW(row),FALSE);
+        gtk_list_box_row_set_activatable(GTK_LIST_BOX_ROW(row),FALSE);
 
         lbl_content = g_strdup_printf("<b><span size=\"30000\">Sorry no trains available to\n%s on %s</span></b>",d->choose_train.selected_dest,d->choose_train.selected_date);
         info_lbl = gtk_label_new("");
@@ -138,6 +190,7 @@ void get_available_trains(GtkButton* btn, gpointer data)
             row = gtk_list_box_row_new();
             gtk_widget_set_size_request(row,50,60);
             gtk_list_box_row_set_selectable(GTK_LIST_BOX_ROW(row),FALSE);
+            gtk_list_box_row_set_activatable(GTK_LIST_BOX_ROW(row),FALSE);
 
             // Gtk_box for the lables
             box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
@@ -169,17 +222,17 @@ void get_available_trains(GtkButton* btn, gpointer data)
 
             name_lbl =  gtk_label_new("");
             gtk_label_set_use_markup(GTK_LABEL(name_lbl),TRUE);
-            lbl_content = g_strdup_printf("<b><span size=\"15000\">%s</span></b>",d->choose_train.lst_box_content[i][NAME]);
+            lbl_content = g_strdup_printf("<b><span size=\"15000\">%s</span></b>",d->choose_train.lst_box_content[i][LST_BOX_NAME]);
             gtk_label_set_markup(GTK_LABEL(name_lbl),lbl_content);
             
             time_lbl =  gtk_label_new("");
             gtk_label_set_use_markup(GTK_LABEL(time_lbl),TRUE);
-            lbl_content = g_strdup_printf("<b><span size=\"15000\">%s</span></b>",d->choose_train.lst_box_content[i][TIME]);
+            lbl_content = g_strdup_printf("<b><span size=\"15000\">%s</span></b>",d->choose_train.lst_box_content[i][LST_BOX_TIME]);
             gtk_label_set_markup(GTK_LABEL(time_lbl),lbl_content);
 
             avail_seats_lbl =  gtk_label_new("");
             gtk_label_set_use_markup(GTK_LABEL(avail_seats_lbl),TRUE);
-            lbl_content = g_strdup_printf("<b><span size=\"15000\">%s</span></b>",d->choose_train.lst_box_content[i][AVAIL_SEATS]);
+            lbl_content = g_strdup_printf("<b><span size=\"15000\">%s</span></b>",d->choose_train.lst_box_content[i][LST_BOX_AVAIL_SEATS]);
             gtk_label_set_markup(GTK_LABEL(avail_seats_lbl),lbl_content);
 
             row = gtk_list_box_row_new();
@@ -203,9 +256,62 @@ void get_available_trains(GtkButton* btn, gpointer data)
     gtk_widget_show_all(d->choose_train.lst_box);
 }
 
-void train_selected(GtkListBoxRow *row, gpointer data)
+void train_selected(GtkListBox* box, GtkListBoxRow *row, gpointer data)
+{   
+    /*  This fn is called when the train is selected in the choose train screen, This function does the following:
+        * Gets the data(train id) in the row
+        * Using that data gets the seats and stores it in DATA.W_choose_seat.train_data which is char array(string)
+        * Fills the flowboxes with appropriate data
+    */
+
+    DATA *d = data;
+    char *title_text = "";
+    GList *lst = gtk_container_get_children(
+                        GTK_CONTAINER
+                        (
+                            g_list_nth_data(gtk_container_get_children
+                            (
+                                GTK_CONTAINER(row) // Row
+                            ),0)
+                        ) /*Box*/ );
+
+    d->choose_seats.count = 0;
+    free(d->choose_seats.train_data);
+    d->choose_seats.train_data = calloc(6,sizeof(char*)); /* ID, NAME, TIME, AVAIL_SEATS, DATE, DEST */
+    g_list_foreach(lst,get_lst_data,&(d->choose_seats));
+
+    d->choose_seats.train_data[TRAIN_DET_DATE] = calloc(strlen(d->choose_train.selected_date),sizeof(char));
+    d->choose_seats.train_data[TRAIN_DET_DEST] = calloc(strlen(d->choose_train.selected_dest),sizeof(char));
+    strcpy(d->choose_seats.train_data[TRAIN_DET_DATE],d->choose_train.selected_date);
+    strcpy(d->choose_seats.train_data[TRAIN_DET_DEST],d->choose_train.selected_dest);
+
+    // for (int i = 0; i < 6; i++)
+    // {
+    //     printf("%s\t",d->choose_seats.train_data[i]);
+    // }
+    // printf("\n");
+
+    // Allocating memory
+    free(d->choose_seats.seats);
+    d->choose_seats.seats = calloc(100, sizeof(char**)); // 100 seats
+
+    d->choose_seats.count = 0;
+    pthread_create(&(d->choose_seats.get_seats_thread),NULL,get_seats_data,&(d->choose_seats));
+    pthread_join(d->choose_seats.get_seats_thread, NULL);
+    // printf("Row Clicked\n");
+    fill_flowboxes(&(d->choose_seats));
+
+    title_text = g_strdup_printf("<b><span size=\"30000\">%s (%s @ %s)</span></b>",d->choose_seats.train_data[TRAIN_DET_NAME],d->choose_seats.train_data[TRAIN_DET_DATE],d->choose_seats.train_data[TRAIN_DET_TIME]);
+    gtk_label_set_markup(GTK_LABEL(d->choose_seats.title), title_text);
+    gtk_stack_set_visible_child(GTK_STACK(d->stack), d->choose_seats.scr);
+}
+
+void flowbox_selection_changed(GtkFlowBox* fbox, gpointer data)
 {
-    printf("Row Clicked\n");
+    /* This function is called when a flowbox is selected; it helps to make booked seats unselectable */
+    DATA *d = data;
+
+    gtk_flow_box_selected_foreach(fbox, flowbox_deselect, data);
 }
 
 #endif

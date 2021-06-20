@@ -74,8 +74,25 @@ int callback_get_avail_seats(void *data, int argc, char **argv, char **azColName
     return 0;
 }
 
-void rem_lst_wgts(GtkWidget *w, gpointer data)
+int callback_get_seat_data(void *data, int argc, char **argv, char **azColName)
 {
+    W_choose_seats *d = data;
+
+    d->seats[d->count] = calloc(argc,sizeof(char*));
+    for (int i = 0; i < argc; i++)
+    {
+        d->seats[d->count][i] = calloc(strlen(argv[i]),sizeof(char));
+        strcpy(d->seats[d->count][i],argv[i]);
+    }
+    
+    d->count++;
+    return 0;
+}
+
+
+void rem_container_wgts(GtkWidget *w, gpointer data)
+{
+    /* Removes the child from a container */
     GtkContainer *c = data;
     gtk_container_remove(c,w);
 }

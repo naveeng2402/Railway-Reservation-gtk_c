@@ -8,6 +8,8 @@
 #include "slots.h"
 #include "callbacks.h"
 
+G_MODULE_EXPORT void size_allocate_flowbox(GtkWidget*, GtkAllocation*, gpointer); // This is declared here as the g_signal_connect fails
+
 /* Getting pointors for required widgets */
 void get_widgets(GtkBuilder* b, DATA* d)
 {   
@@ -36,6 +38,16 @@ void get_widgets(GtkBuilder* b, DATA* d)
     d->choose_train.get_train = GTK_WIDGET(gtk_builder_get_object(b,"choose_train_scr_get_train"));
     d->choose_train.revealer = GTK_WIDGET(gtk_builder_get_object(b,"choose_train_scr_revealer"));
     d->choose_train.lst_box = GTK_WIDGET(gtk_builder_get_object(b,"choose_train_scr_lst_box"));
+
+    // Widgets for choose_seats
+    d->choose_seats.scr = GTK_WIDGET(gtk_builder_get_object(b,"choose_seats_scr"));
+    d->choose_seats.back = GTK_WIDGET(gtk_builder_get_object(b,"choose_seat_scr_back_btn"));
+    d->choose_seats.cont = GTK_WIDGET(gtk_builder_get_object(b,"choose_seat_scr_continue_btn"));
+    d->choose_seats.title = GTK_WIDGET(gtk_builder_get_object(b,"choose_seats_title_lbl"));
+    d->choose_seats.ac    = GTK_WIDGET(gtk_builder_get_object(b,"AC"));
+    d->choose_seats.non_ac = GTK_WIDGET(gtk_builder_get_object(b,"Non_AC"));
+    d->choose_seats.ac_sleeper = GTK_WIDGET(gtk_builder_get_object(b,"AC_Sleeper"));
+    d->choose_seats.non_ac_sleeper = GTK_WIDGET(gtk_builder_get_object(b,"Non_AC_Sleeper"));
 
 }
 
@@ -77,7 +89,113 @@ void get_imgs(GtkBuilder* b,GHashTable* tbl)
     populate_tbl(b,tbl,"welcome_scr_dwnld_tic_scrl","welcome_scr_dwnld_tic_img","view_ticket");
     populate_tbl(b,tbl,"welcome_scr_cncl_tic_scrl","welcome_scr_cncl_tic_img","cancel_ticket");
     populate_tbl(b,tbl,"choose_train_scr_back_scrl","choose_train_scr_back_ico","back");
+    populate_tbl(b,tbl,"choose_seat_scr_back_scrl","choose_seat_scr_back_ico","back");
+    populate_tbl(b,tbl,"choose_seat_scrl","choose_seat_scrl_ico","continue");
+    populate_tbl(b,tbl,"choose_seat_avail_scrl","choose_seat_avail_ico","seat_avail");
+    populate_tbl(b,tbl,"choose_seat_booked_scrl","choose_seat_booked_ico","seat_booked");
+    populate_tbl(b,tbl,"choose_seat_win_scrl","choose_seat_win_ico","win_seat");
 
+}
+
+/* Fill the flowboxes in the choose seat */
+void fill_flowboxes(W_choose_seats *data)
+{
+    GtkWidget *box, *aspect, *label;
+    GtkWidget *scroll, *viewport, *img;
+    int is_booked, is_window;
+    char *seat_status=""; /* avail, booked, win */
+
+    data->pix = calloc(3, sizeof(GdkPixbuf*)); /*avail, booked, window*/
+    
+    /* Loading the images to the array */
+    data->pix[AVAIL_SEAT] = gdk_pixbuf_new_from_resource("/icons/seat_avail.svg",NULL);
+    data->pix[BOOKED_SEAT] = gdk_pixbuf_new_from_resource("/icons/seat_booked.svg",NULL);
+    data->pix[WIN_SEAT] = gdk_pixbuf_new_from_resource("/icons/win_seat.svg",NULL);
+
+    for (int i = 0; i < 100; i++)
+    {
+        /* Setting the variables for iteratin */
+        is_window = atoi(data->seats[i][SEAT_IS_WINDOW]); is_booked = atoi(data->seats[i][SEAT_IS_BOOKED]);
+        seat_status = (is_booked == 1)?"booked":((is_window == 0)?"avail":"win");
+
+        // printf("%-3s : %s\n",data->seats[i][SEAT_NO],seat_status);
+        
+        label = gtk_label_new(g_strdup_printf("SEAT %s", data->seats[i][SEAT_NO]));
+
+        /* Widgets for dynamic scaling images */
+        img = gtk_image_new();
+        gtk_image_set_from_pixbuf(GTK_IMAGE(img), data->pix[AVAIL_SEAT]);
+
+        scroll = gtk_scrolled_window_new(NULL, NULL);
+        gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scroll), GTK_SHADOW_NONE);
+        gtk_scrolled_window_set_min_content_height(GTK_SCROLLED_WINDOW(scroll), 1);
+        gtk_scrolled_window_set_min_content_width(GTK_SCROLLED_WINDOW(scroll), 1);
+        gtk_widget_set_name(scroll, seat_status);
+        g_signal_connect(G_OBJECT(scroll), "size-allocate", G_CALLBACK(size_allocate_flowbox), data);
+        gtk_container_add(GTK_CONTAINER(scroll), img);
+
+        aspect = gtk_aspect_frame_new(NULL, 0.50, 0.50, 1, TRUE);
+        gtk_frame_set_shadow_type(GTK_FRAME(aspect), GTK_SHADOW_NONE);
+        gtk_container_add(GTK_CONTAINER(aspect), scroll);
+
+        /* Box containing all the widgets that is placed in the flowbox */
+        box = gtk_box_new(GTK_ORIENTATION_VERTICAL,5);
+        gtk_widget_set_hexpand(box, TRUE);
+        gtk_widget_set_name(box, seat_status);
+        gtk_box_set_homogeneous(GTK_BOX(box),FALSE);
+        gtk_container_add(GTK_CONTAINER(box),aspect);
+        gtk_box_set_child_packing(GTK_BOX(box),aspect,TRUE,TRUE,0,GTK_PACK_START);
+        gtk_container_add(GTK_CONTAINER(box),label);
+
+        /* Choosing the appropriate flowbox */
+        if (i>=0 && i < 25)
+        {
+            gtk_container_add(GTK_CONTAINER(data->ac), box);
+        }
+        else if (i>=25 && i < 50)
+        {
+            gtk_container_add(GTK_CONTAINER(data->non_ac), box);
+        }
+        else if (i>=50 && i < 75)
+        {
+            gtk_container_add(GTK_CONTAINER(data->ac_sleeper), box);
+        }
+        else if (i>=75 && i < 100)
+        {
+            gtk_container_add(GTK_CONTAINER(data->non_ac_sleeper), box);
+        }
+    }
+
+    // Showing the widgets
+    gtk_widget_show_all(data->ac);
+    gtk_widget_show_all(data->non_ac);
+    gtk_widget_show_all(data->ac_sleeper);
+    gtk_widget_show_all(data->non_ac_sleeper);
+
+}
+
+void flowbox_deselect(GtkFlowBox* fbox, GtkFlowBoxChild* child, gpointer data)
+{   
+    /* Deselects the seat no if the seat is booked */
+    GtkWidget *box = GTK_WIDGET(g_list_nth_data(gtk_container_get_children(GTK_CONTAINER(child)),0));
+
+    if ((strcmp(gtk_widget_get_name(box),"booked"))==0)
+    {
+        gtk_flow_box_unselect_child(fbox, child);
+    }
+    
+}
+
+
+/* Get the data from GList */
+void get_lst_data(gpointer data, gpointer pram)
+{
+    /* train_data -> ID, NAME, TIME, AVAIL_SEATS */
+    W_choose_seats *d = pram;
+    const char *text = gtk_label_get_text(GTK_LABEL(data));
+    d->train_data[d->count] = calloc(strlen(text),sizeof(char));
+    strcpy(d->train_data[d->count],text);
+    d->count++;
 }
 
 /*************************************************************************************
@@ -157,6 +275,7 @@ void get_ids(sqlite3 *db, START_LOAD *data)
 
 void add_seats(sqlite3* db, int train_id)
 {
+    /* Adds the seats to for each train */
     int is_window = 0, class_id = 1, offset = 0;
     char *sql = malloc(1);
 
@@ -178,6 +297,7 @@ void add_seats(sqlite3* db, int train_id)
 
 void add_trains(sqlite3* db, START_LOAD* data, int dates_id, int def_train) /* def_trains is used as a index */
 {
+    /* Adds trains to the db */
     char *sql = malloc(1);
 
     sql = "INSERT INTO TRAIN (\"is_train_full\") VALUES(0)";
@@ -386,7 +506,7 @@ void* get_list_content(void* arg)
                             WHERE des.destination=\"%s\" AND dt.dates_val=\"%s\" AND s.is_booked=0",
                             data->selected_dest,data->selected_date);
     sqlite3_exec(db, sql, callback_get_id,&(data->len),NULL);
-    printf("len %d\n",data->len);
+    // printf("len %d\n",data->len);
 
     if (data->len==0)     
     {
@@ -414,12 +534,48 @@ void* get_list_content(void* arg)
             data->count = i;
             sql = g_strdup_printf("SELECT count(*) FROM \
                             SEAT WHERE is_booked=0 and train_id=\"%s\"",data->lst_box_content[i][LST_BOX_TRAIN_ID]);
-            data->lst_box_content[i][AVAIL_SEATS] = calloc(3,sizeof(char)); /*seat is a 3 digit number*/
-            sqlite3_exec(db,sql,callback_get_avail_seats,data->lst_box_content[i][AVAIL_SEATS],NULL);
+            data->lst_box_content[i][LST_BOX_AVAIL_SEATS] = calloc(3,sizeof(char)); /*seat is a 3 digit number*/
+            sqlite3_exec(db,sql,callback_get_avail_seats,data->lst_box_content[i][LST_BOX_AVAIL_SEATS],NULL);
         }
         
     }
     sqlite3_close(db);
+}
+
+void* get_seats_data(void* arg)
+{
+    /* This thread is called  when a train is choosed in the choose train and does the following functions
+        * Gets the seats data and store it in a 3d array (seats)
+    */
+
+    W_choose_seats *data = arg;
+    sqlite3 *db;
+
+    char* sql="";
+
+    sqlite3_open("rsc/data", &db);
+
+    sql = g_strdup_printf("SELECT s.seat_no, sc.class, s.is_booked, s.is_window FROM \
+                        SEAT AS s JOIN static_SEAT_CLASS AS sc ON s.class_id=sc.id \
+                        JOIN TRAIN AS t ON t.id=s.train_id \
+                        JOIN Train_Dates AS t_dt ON t.id=t_dt.train_id JOIN DATES AS dt ON dt.id=t_dt.dates_id /*joining train dates*/ \
+                        JOIN Train_Name AS t_n ON t.id=t_n.train_id JOIN NAME AS n ON n.id=t_n.name_id /*joining train name*/ \
+                        JOIN Train_Dest AS t_des ON t.id=t_des.train_id JOIN DEST AS des ON des.id=t_des.dest_id /*joining train destination*/ \
+                        JOIN Train_Time AS t_ti ON t.id=t_ti.train_id JOIN TIMES AS ti ON ti.id=t_ti.time_id /*joining train time*/ \
+                        WHERE t.id = %s",data->train_data[TRAIN_DET_TRAIN_ID]);
+    data->count = 0;
+    sqlite3_exec(db,sql,callback_get_seat_data,data,NULL);
+
+    // for (int i = 0; i < 100; i++)
+    // {
+    //     for (int j = 0; j < 4; j++)
+    //     {
+    //         printf("%s\t",data->seats[i][j]);
+    //     }
+    //     printf("\n");
+    // }
+    
+
 }
 
 #endif

@@ -39,6 +39,22 @@ typedef struct _choose_train
 
 }W_choose_train;
 
+// Structure Containing widgets of choose train
+typedef struct _choose_seats
+{
+    GtkWidget* scr; // Grid of the screen
+
+    GtkWidget *back, *cont; // Buttons
+    GtkWidget *title; // Label
+    GtkWidget *ac, *non_ac, *ac_sleeper, *non_ac_sleeper; // Flowbox
+
+    pthread_t get_seats_thread; // Threads
+    GdkPixbuf **pix; /* Array to store pix_buffs -> avail, booked, window*/
+    int count;
+    char ***seats, **train_data; // arrays
+}W_choose_seats;
+
+
 // Structure Containing all the data
 typedef struct _data
 {
@@ -49,6 +65,7 @@ typedef struct _data
     W_load_scr load;
     W_welcome_scr welcome;
     W_choose_train choose_train;
+    W_choose_seats choose_seats;
     
     GHashTable *pixbuffs; // Hash table to store gdkpixbuffs, GtkScrolledWindow and GtkImages  
 }DATA;
@@ -80,10 +97,36 @@ enum default_trains
 enum lstbox_content
 {
     LST_BOX_TRAIN_ID,
-    TIME,
-    NAME,
-    AVAIL_SEATS
+    LST_BOX_TIME,
+    LST_BOX_NAME,
+    LST_BOX_AVAIL_SEATS
 };
+
+enum train_details
+{
+    TRAIN_DET_TRAIN_ID,
+    TRAIN_DET_NAME,
+    TRAIN_DET_TIME,
+    TRAIN_DET_AVAIL_SEATS,
+    TRAIN_DET_DATE,
+    TRAIN_DET_DEST
+};
+
+enum seats
+{
+    SEAT_NO,
+    SEAT_CLASS,
+    SEAT_IS_BOOKED,
+    SEAT_IS_WINDOW
+};
+
+
+enum Pixbuff
+    {
+        AVAIL_SEAT,
+        BOOKED_SEAT,
+        WIN_SEAT 
+    };
 
 enum static_SEAT_CLASS
 {
