@@ -49,6 +49,15 @@ void get_widgets(GtkBuilder* b, DATA* d)
     d->choose_seats.ac_sleeper = GTK_WIDGET(gtk_builder_get_object(b,"AC_Sleeper"));
     d->choose_seats.non_ac_sleeper = GTK_WIDGET(gtk_builder_get_object(b,"Non_AC_Sleeper"));
 
+    // Widgets for enter_details
+    d->enter_details.scr = GTK_WIDGET(gtk_builder_get_object(b,"enter_details_scr"));
+    d->enter_details.pass_dets = GTK_WIDGET(gtk_builder_get_object(b,"enter_details_passengers_stack"));
+    d->enter_details.back = GTK_WIDGET(gtk_builder_get_object(b,"enter_details_scr_back_btn"));
+    d->enter_details.book = GTK_WIDGET(gtk_builder_get_object(b,"enter_details_scr_continue_btn"));
+    d->enter_details.contact_name = GTK_WIDGET(gtk_builder_get_object(b,"enter_details_contact_name"));
+    d->enter_details.contact_number = GTK_WIDGET(gtk_builder_get_object(b,"enter_details_contact_m_no"));
+    d->enter_details.contact_mail = GTK_WIDGET(gtk_builder_get_object(b,"enter_details_contact_email"));
+
 }
 
 /* Adding data to the hashtable */
@@ -88,12 +97,20 @@ void get_imgs(GtkBuilder* b,GHashTable* tbl)
     populate_tbl(b,tbl,"welcome_scr_book_tic_scrl","welcome_scr_book_tic_img","book_ticket");
     populate_tbl(b,tbl,"welcome_scr_dwnld_tic_scrl","welcome_scr_dwnld_tic_img","view_ticket");
     populate_tbl(b,tbl,"welcome_scr_cncl_tic_scrl","welcome_scr_cncl_tic_img","cancel_ticket");
+ 
+    // For Choose train scr
     populate_tbl(b,tbl,"choose_train_scr_back_scrl","choose_train_scr_back_ico","back");
+    
+    // For choose seats scr
     populate_tbl(b,tbl,"choose_seat_scr_back_scrl","choose_seat_scr_back_ico","back");
     populate_tbl(b,tbl,"choose_seat_scrl","choose_seat_scrl_ico","continue");
     populate_tbl(b,tbl,"choose_seat_avail_scrl","choose_seat_avail_ico","seat_avail");
     populate_tbl(b,tbl,"choose_seat_booked_scrl","choose_seat_booked_ico","seat_booked");
     populate_tbl(b,tbl,"choose_seat_win_scrl","choose_seat_win_ico","win_seat");
+
+    // For enter details
+    populate_tbl(b,tbl,"enter_details_scr_back_scrl","enter_details_scr_back_ico","back");
+    populate_tbl(b,tbl,"enter_details_bk_scrl","enter_details_bk_ico","book_ticket");
 
 }
 
@@ -177,7 +194,9 @@ void fill_flowboxes(W_choose_seats *data)
 void flowbox_deselect(GtkFlowBox* fbox, GtkFlowBoxChild* child, gpointer data)
 {   
     /* Deselects the seat no if the seat is booked */
-    GtkWidget *box = GTK_WIDGET(g_list_nth_data(gtk_container_get_children(GTK_CONTAINER(child)),0));
+    GtkWidget *box = GTK_WIDGET(g_list_nth_data(
+                        gtk_container_get_children(GTK_CONTAINER(child)), // FlowBox child
+                        0));
 
     if ((strcmp(gtk_widget_get_name(box),"booked"))==0)
     {
@@ -186,6 +205,67 @@ void flowbox_deselect(GtkFlowBox* fbox, GtkFlowBoxChild* child, gpointer data)
     
 }
 
+/* Fills the stack inside the enter details scr */
+void fill_det_stack(W_enter_details *data)
+{
+    GtkWidget *name_lbl, *age_lbl, *gen_lbl; /* Lables */
+    GtkWidget *grid; /* Grid_layout */
+    char *stack_child = malloc(1); /* name and title of the stack child */
+
+    for (int i = 0; i < data->no_of_pass; i++)
+    {
+        stack_child = g_strdup_printf("SEAT %s",data->seat_nos[i]);
+
+        name_lbl = gtk_label_new(NULL);
+        gtk_label_set_use_markup(GTK_LABEL(name_lbl), TRUE);
+        gtk_label_set_markup(GTK_LABEL(name_lbl), "<span size=\"15000\" >Passenger Name</span>");
+        gtk_widget_set_halign(name_lbl, GTK_ALIGN_END);
+
+        age_lbl = gtk_label_new(NULL);
+        gtk_label_set_use_markup(GTK_LABEL(age_lbl), TRUE);
+        gtk_label_set_markup(GTK_LABEL(age_lbl), "<span size=\"15000\" >Passenger's Age</span>");
+        gtk_widget_set_halign(age_lbl, GTK_ALIGN_END);
+
+        gen_lbl = gtk_label_new(NULL);
+        gtk_label_set_use_markup(GTK_LABEL(gen_lbl), TRUE);
+        gtk_label_set_markup(GTK_LABEL(gen_lbl), "<span size=\"15000\" >Gender</span>");
+        gtk_widget_set_halign(gen_lbl, GTK_ALIGN_END);
+
+        data->pass_name[i] = gtk_entry_new();
+        gtk_widget_set_halign(data->pass_name[i], GTK_ALIGN_START);
+
+        data->pass_age[i] = gtk_entry_new();
+        gtk_widget_set_halign(data->pass_age[i], GTK_ALIGN_START);
+
+        data->pass_gen[i] = gtk_combo_box_text_new();
+        gtk_combo_box_text_insert_text(GTK_COMBO_BOX_TEXT(data->pass_gen[i]),0,"Male");
+        gtk_combo_box_text_insert_text(GTK_COMBO_BOX_TEXT(data->pass_gen[i]),1,"Female");
+        gtk_combo_box_text_insert_text(GTK_COMBO_BOX_TEXT(data->pass_gen[i]),2,"Transgender");
+        gtk_combo_box_set_button_sensitivity(GTK_COMBO_BOX(data->pass_gen[i]), GTK_SENSITIVITY_AUTO);
+        gtk_combo_box_set_active(GTK_COMBO_BOX(data->pass_gen[i]), 0);
+        gtk_widget_set_halign(data->pass_gen[i], GTK_ALIGN_START);
+
+        grid = gtk_grid_new();
+        gtk_grid_set_row_homogeneous(GTK_GRID(grid), TRUE);
+        gtk_grid_set_column_homogeneous(GTK_GRID(grid), TRUE);
+        gtk_grid_set_row_spacing(GTK_GRID(grid), 5);
+        gtk_grid_set_column_spacing(GTK_GRID(grid), 20);
+
+        /* Adding the widgets to the grid */
+        gtk_grid_attach(GTK_GRID(grid),name_lbl,0,0,1,1);
+        gtk_grid_attach(GTK_GRID(grid),age_lbl,0,1,1,1);
+        gtk_grid_attach(GTK_GRID(grid),gen_lbl,0,2,1,1);
+        gtk_grid_attach(GTK_GRID(grid),data->pass_name[i],1,0,1,1);
+        gtk_grid_attach(GTK_GRID(grid),data->pass_age[i],1,1,1,1);
+        gtk_grid_attach(GTK_GRID(grid),data->pass_gen[i],1,2,1,1);
+
+        /* Add grid to stack */
+        gtk_stack_add_titled(GTK_STACK(data->pass_dets),grid,stack_child,stack_child);
+    }
+
+    gtk_widget_show_all(data->pass_dets);
+
+}
 
 /* Get the data from GList */
 void get_lst_data(gpointer data, gpointer pram)

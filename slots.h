@@ -122,6 +122,14 @@ void back_to_choose_train(GtkButton* btn, gpointer data)
     gtk_stack_set_visible_child(GTK_STACK(d->stack),d->choose_train.scr);
 }
 
+void back_to_choose_seat(GtkButton* btn,gpointer data)
+{
+    /* This fn is used to move to from enter details to choose seats */
+    DATA *d = data;
+    gtk_container_foreach(GTK_CONTAINER(d->enter_details.pass_dets),rem_container_wgts,d->enter_details.pass_dets);
+    gtk_stack_set_visible_child(GTK_STACK(d->stack),d->choose_seats.scr);
+}
+
 void get_available_trains(GtkButton* btn, gpointer data)
 {
     /* 
@@ -312,6 +320,38 @@ void flowbox_selection_changed(GtkFlowBox* fbox, gpointer data)
     DATA *d = data;
 
     gtk_flow_box_selected_foreach(fbox, flowbox_deselect, data);
+}
+
+void choose_seat_continue_clicked(GtkButton* btn,gpointer data)
+{
+    /* This fn is called when the continue btn in choose seats is clicked, This function does the following:
+        * Gets the no of seats and stores it in data.enter_details.no_of_pass
+    
+    */
+    
+    DATA *d = data;
+
+    /* Getting the selected list from all the 4 flowbox and concating them into a single doubly linked list */
+    GList *selected_seats = g_list_concat(g_list_concat(g_list_concat(gtk_flow_box_get_selected_children(GTK_FLOW_BOX(d->choose_seats.ac)),gtk_flow_box_get_selected_children(GTK_FLOW_BOX(d->choose_seats.non_ac))), gtk_flow_box_get_selected_children(GTK_FLOW_BOX(d->choose_seats.ac_sleeper))), gtk_flow_box_get_selected_children(GTK_FLOW_BOX(d->choose_seats.non_ac_sleeper)));
+
+    d->enter_details.no_of_pass = g_list_length(selected_seats);
+
+    printf("lst_len : %d\n",g_list_length(selected_seats));
+
+    // Allocating memory for entry widgets
+    d->enter_details.seat_nos  = calloc(d->enter_details.no_of_pass, sizeof(char*));
+    d->enter_details.pass_name = calloc(d->enter_details.no_of_pass, sizeof(GtkWidget*));
+    d->enter_details.pass_age = calloc(d->enter_details.no_of_pass, sizeof(GtkWidget*));
+    d->enter_details.pass_gen = calloc(d->enter_details.no_of_pass, sizeof(GtkWidget*));
+
+    // Gets the selected seat numbers and adds it to a array
+    d->enter_details.count = 0;
+    g_list_foreach(selected_seats, get_seat_nums, &(d->enter_details));
+
+    // Fill the stack in enter details scr
+    fill_det_stack(&(d->enter_details));
+
+    gtk_stack_set_visible_child(GTK_STACK(d->stack),d->enter_details.scr);
 }
 
 #endif

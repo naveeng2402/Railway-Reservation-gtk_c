@@ -18,6 +18,7 @@ void get_imgs(GtkBuilder*, GHashTable*);
 void get_lst_data(gpointer,gpointer);
 void fill_flowboxs(W_choose_seats*);
 void flowbox_deselect(GtkFlowBox*, GtkFlowBoxChild*, gpointer);
+void fill_det_stack(W_enter_details*);
 
 void SLEEP(int);
 
@@ -40,6 +41,7 @@ int callback_get_avail_seats(void *, int, char **, char **);
 int callback_get_seat_data(void *, int, char **, char **);
 
 void rem_container_wgts(GtkWidget*, gpointer);
+void get_seat_nums(gpointer, gpointer);
 
 /* Slots */
 G_MODULE_EXPORT void quit(AtkWindow*, gpointer);
@@ -49,10 +51,12 @@ G_MODULE_EXPORT void welcome_info(GtkButton*,gpointer);
 G_MODULE_EXPORT void book_tic(GtkButton*,gpointer);
 G_MODULE_EXPORT void back_to_welcome(GtkButton*,gpointer);
 G_MODULE_EXPORT void back_to_choose_train(GtkButton*,gpointer);
+G_MODULE_EXPORT void back_to_choose_train(GtkButton*,gpointer);
 G_MODULE_EXPORT void get_available_trains(GtkButton*,gpointer);
 G_MODULE_IMPORT void train_selected(GtkListBox*, GtkListBoxRow*, gpointer);
 G_MODULE_IMPORT void flowbox_selection_changed(GtkFlowBox*, gpointer);
 G_MODULE_IMPORT void flowbox_child_activated(GtkFlowBox*, GtkFlowBoxChild*, gpointer);
+G_MODULE_EXPORT void choose_seat_continue_clicked(GtkButton*,gpointer);
 
 /* Thread Functions */
 void* start_load(void*);

@@ -50,10 +50,25 @@ typedef struct _choose_seats
 
     pthread_t get_seats_thread; // Threads
     GdkPixbuf **pix; /* Array to store pix_buffs -> avail, booked, window*/
+    int *selected_seats; // Array containing selected seat numbers
     int count;
     char ***seats, **train_data; // arrays
 }W_choose_seats;
 
+typedef struct _enter_details
+{
+    GtkWidget *scr;
+
+    GtkWidget *pass_dets; // Stack 
+    GtkWidget *back, *book; // Buttons
+    GtkWidget *contact_name, *contact_number, *contact_mail; // Entries
+
+    int count; // used in callbacks
+    int no_of_pass; // no of passengers
+    char **seat_nos; // a array of selected seat numbers
+    GtkWidget **pass_name, **pass_age, **pass_gen; // arrays of passenger detail entries
+
+}W_enter_details;
 
 // Structure Containing all the data
 typedef struct _data
@@ -66,6 +81,7 @@ typedef struct _data
     W_welcome_scr welcome;
     W_choose_train choose_train;
     W_choose_seats choose_seats;
+    W_enter_details enter_details;
     
     GHashTable *pixbuffs; // Hash table to store gdkpixbuffs, GtkScrolledWindow and GtkImages  
 }DATA;

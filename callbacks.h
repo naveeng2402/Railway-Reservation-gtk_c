@@ -97,4 +97,23 @@ void rem_container_wgts(GtkWidget *w, gpointer data)
     gtk_container_remove(c,w);
 }
 
+void get_seat_nums(gpointer lst_item, gpointer data)
+{   
+    W_enter_details* d = data;
+
+    const char *seat_no;
+    GtkWidget *lbl; // Label
+    GtkWidget *fbox_child = lst_item; // FlowBoxChild
+
+    lbl = GTK_WIDGET(g_list_nth_data(gtk_container_get_children(
+                    GTK_CONTAINER(g_list_nth_data(gtk_container_get_children(GTK_CONTAINER(fbox_child)),0)) /*FlowBoxChild*/
+                        ),1));
+    seat_no = &(gtk_label_get_text(GTK_LABEL(lbl))[5]);
+
+    d->seat_nos[d->count] = calloc(strlen(seat_no),sizeof(char));
+    strcpy(d->seat_nos[d->count],seat_no);    
+
+    d->count++;
+}
+
 #endif
