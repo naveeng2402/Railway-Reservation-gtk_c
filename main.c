@@ -19,6 +19,7 @@ void get_lst_data(gpointer,gpointer);
 void fill_flowboxs(W_choose_seats*);
 void flowbox_deselect(GtkFlowBox*, GtkFlowBoxChild*, gpointer);
 void fill_det_stack(W_enter_details*);
+void fill_check_scr_lst_box(DATA*);
 
 void SLEEP(int);
 
@@ -51,12 +52,15 @@ G_MODULE_EXPORT void welcome_info(GtkButton*,gpointer);
 G_MODULE_EXPORT void book_tic(GtkButton*,gpointer);
 G_MODULE_EXPORT void back_to_welcome(GtkButton*,gpointer);
 G_MODULE_EXPORT void back_to_choose_train(GtkButton*,gpointer);
-G_MODULE_EXPORT void back_to_choose_train(GtkButton*,gpointer);
+G_MODULE_EXPORT void back_to_choose_seat(GtkButton*,gpointer);
+G_MODULE_EXPORT void back_to_enter_details(GtkButton*,gpointer);
 G_MODULE_EXPORT void get_available_trains(GtkButton*,gpointer);
-G_MODULE_IMPORT void train_selected(GtkListBox*, GtkListBoxRow*, gpointer);
-G_MODULE_IMPORT void flowbox_selection_changed(GtkFlowBox*, gpointer);
-G_MODULE_IMPORT void flowbox_child_activated(GtkFlowBox*, GtkFlowBoxChild*, gpointer);
+G_MODULE_EXPORT void choose_train_combobox_changed(GtkComboBox*,gpointer);
+G_MODULE_EXPORT void train_selected(GtkListBox*, GtkListBoxRow*, gpointer);
+G_MODULE_EXPORT void flowbox_selection_changed(GtkFlowBox*, gpointer);
+G_MODULE_EXPORT void flowbox_child_activated(GtkFlowBox*, GtkFlowBoxChild*, gpointer);
 G_MODULE_EXPORT void choose_seat_continue_clicked(GtkButton*,gpointer);
+G_MODULE_EXPORT void enter_details_continue_clicked(GtkButton*,gpointer);
 
 /* Thread Functions */
 void* start_load(void*);
@@ -68,6 +72,8 @@ int main(int argc, char *argv[])
 {
     GtkBuilder *builder;
     DATA *data = g_slice_new(DATA);
+
+    data->choose_train.is_revealer_visible = 0;
 
     data->pixbuffs = g_hash_table_new(g_str_hash,NULL); // Initialising the hash table
 

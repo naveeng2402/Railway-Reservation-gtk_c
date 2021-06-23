@@ -10,9 +10,13 @@ void quit(AtkWindow *win, gpointer data)
 {
     DATA *d = data;
     pthread_join(d->start_thread,NULL);
+    printf("Joined Thread 1\n");
     pthread_join(d->choose_train.dest_date_thread, NULL);
+    printf("Joined Thread 2\n");
     pthread_join(d->choose_train.get_trains_thread,NULL);
+    printf("Joined Thread 3\n");
     pthread_join(d->choose_seats.get_seats_thread, NULL);
+    printf("Joined Thread 4\n");
     gtk_main_quit();
 }
 
@@ -120,6 +124,18 @@ void back_to_choose_train(GtkButton* btn, gpointer data)
     gtk_container_foreach(GTK_CONTAINER(d->choose_seats.ac_sleeper),rem_container_wgts,d->choose_seats.ac_sleeper);
     gtk_container_foreach(GTK_CONTAINER(d->choose_seats.non_ac_sleeper),rem_container_wgts,d->choose_seats.non_ac_sleeper);
     gtk_stack_set_visible_child(GTK_STACK(d->stack),d->choose_train.scr);
+}
+
+void back_to_enter_details(GtkButton* btn,gpointer data)
+{   
+    /* This function used to move from check details to enter details */
+
+    DATA *d = data;
+
+    // Remove all the widgets from the stack
+    gtk_container_foreach(GTK_CONTAINER(d->check_details.check_pass_dets),rem_container_wgts,d->check_details.check_pass_dets);
+
+    gtk_stack_set_visible_child(GTK_STACK(d->stack), d->enter_details.scr);
 }
 
 void back_to_choose_seat(GtkButton* btn,gpointer data)
@@ -230,6 +246,7 @@ void get_available_trains(GtkButton* btn, gpointer data)
 
             name_lbl =  gtk_label_new("");
             gtk_label_set_use_markup(GTK_LABEL(name_lbl),TRUE);
+            gtk_label_set_ellipsize(GTK_LABEL(name_lbl),PANGO_ELLIPSIZE_END);
             lbl_content = g_strdup_printf("<b><span size=\"15000\">%s</span></b>",d->choose_train.lst_box_content[i][LST_BOX_NAME]);
             gtk_label_set_markup(GTK_LABEL(name_lbl),lbl_content);
             
@@ -262,6 +279,14 @@ void get_available_trains(GtkButton* btn, gpointer data)
     gtk_revealer_set_transition_duration(GTK_REVEALER(d->choose_train.revealer),3000);
     gtk_revealer_set_reveal_child(GTK_REVEALER(d->choose_train.revealer),TRUE);
     gtk_widget_show_all(d->choose_train.lst_box);
+    d->choose_train.is_revealer_visible = 1;
+}
+
+void choose_train_combobox_changed(GtkComboBox *cbox, gpointer data)
+{
+    /* This function is called when the combobox active element changed */
+    if (((DATA*)data)->choose_train.is_revealer_visible == 1)
+        get_available_trains(NULL,data);
 }
 
 void train_selected(GtkListBox* box, GtkListBoxRow *row, gpointer data)
@@ -319,14 +344,14 @@ void flowbox_selection_changed(GtkFlowBox* fbox, gpointer data)
     /* This function is called when a flowbox is selected; it helps to make booked seats unselectable */
     DATA *d = data;
 
-    gtk_flow_box_selected_foreach(fbox, flowbox_deselect, data);
+    gtk_flow_box_selected_foreach(fbox, flowbox_deselect, d);
 }
 
 void choose_seat_continue_clicked(GtkButton* btn,gpointer data)
 {
     /* This fn is called when the continue btn in choose seats is clicked, This function does the following:
         * Gets the no of seats and stores it in data.enter_details.no_of_pass
-    
+        * Using the data the stack is  filled
     */
     
     DATA *d = data;
@@ -336,22 +361,83 @@ void choose_seat_continue_clicked(GtkButton* btn,gpointer data)
 
     d->enter_details.no_of_pass = g_list_length(selected_seats);
 
-    printf("lst_len : %d\n",g_list_length(selected_seats));
+    if (d->enter_details.no_of_pass == 0)
+    {
+        GtkWidget *dig = GTK_WIDGET(gtk_builder_get_object(gtk_builder_new_from_resource("/UI/UI.glade"),"Message_dig"));
+        gtk_message_dialog_format_secondary_markup(GTK_MESSAGE_DIALOG(dig),"Please select atleast 1 seat");
+        gtk_dialog_run(GTK_DIALOG(dig));
+        gtk_widget_destroy(GTK_WIDGET(dig));
+    }
+    else
+    {   
+        // Allocating memory for entry widgets
+        d->enter_details.seat_nos  = calloc(d->enter_details.no_of_pass, sizeof(char*));
+        d->enter_details.pass_name = calloc(d->enter_details.no_of_pass, sizeof(GtkWidget*));
+        d->enter_details.pass_age = calloc(d->enter_details.no_of_pass, sizeof(GtkWidget*));
+        d->enter_details.pass_gen = calloc(d->enter_details.no_of_pass, sizeof(GtkWidget*));
 
-    // Allocating memory for entry widgets
-    d->enter_details.seat_nos  = calloc(d->enter_details.no_of_pass, sizeof(char*));
-    d->enter_details.pass_name = calloc(d->enter_details.no_of_pass, sizeof(GtkWidget*));
-    d->enter_details.pass_age = calloc(d->enter_details.no_of_pass, sizeof(GtkWidget*));
-    d->enter_details.pass_gen = calloc(d->enter_details.no_of_pass, sizeof(GtkWidget*));
+        // Gets the selected seat numbers and adds it to a array
+        d->enter_details.count = 0;
+        g_list_foreach(selected_seats, get_seat_nums, &(d->enter_details));
 
-    // Gets the selected seat numbers and adds it to a array
-    d->enter_details.count = 0;
-    g_list_foreach(selected_seats, get_seat_nums, &(d->enter_details));
+        // Remove all the widgets from the stack if existed
+        gtk_container_foreach(GTK_CONTAINER(d->enter_details.pass_dets),rem_container_wgts,d->enter_details.pass_dets);
 
-    // Fill the stack in enter details scr
-    fill_det_stack(&(d->enter_details));
+        // Fill the stack in enter details scr
+        fill_det_stack(&(d->enter_details));
 
-    gtk_stack_set_visible_child(GTK_STACK(d->stack),d->enter_details.scr);
+        gtk_stack_set_visible_child(GTK_STACK(d->stack),d->enter_details.scr);
+    }
+}
+
+void enter_details_continue_clicked(GtkButton* btn,gpointer data)
+{
+    DATA *d = data;
+    int no_of_entries = 3+((d->enter_details.no_of_pass)*2), is_empty_index = 2;
+    int *is_empty = calloc(no_of_entries,sizeof(int)), is_all_good = 1;
+
+    is_empty[0] = (strcmp(gtk_entry_get_text(GTK_ENTRY(d->enter_details.contact_name)),"")==0)?1:0;
+    is_empty[1] = (strcmp(gtk_entry_get_text(GTK_ENTRY(d->enter_details.contact_number)),"")==0)?1:0;
+    is_empty[2] = (strcmp(gtk_entry_get_text(GTK_ENTRY(d->enter_details.contact_mail)),"")==0)?1:0;
+
+    for (int i = 0; i < d->enter_details.no_of_pass; i++)
+    {
+        is_empty[++is_empty_index] = (strcmp(gtk_entry_get_text(GTK_ENTRY(d->enter_details.pass_name[i])),"")==0)?1:0;
+        is_empty[++is_empty_index] = (strcmp(gtk_entry_get_text(GTK_ENTRY(d->enter_details.pass_age[i])),"")==0)?1:0;
+    }
+    
+    for (int i = 0; i < no_of_entries; i++)
+    {
+        if (is_empty[i]==1)
+        {
+            is_all_good = 0;
+            break;
+        }
+        
+    }
+    
+    if (is_all_good == 0)
+    {
+        GtkWidget *dig = GTK_WIDGET(gtk_builder_get_object(gtk_builder_new_from_resource("/UI/UI.glade"),"Message_dig"));
+        gtk_message_dialog_format_secondary_markup(GTK_MESSAGE_DIALOG(dig),"Please Enter all the details");
+        gtk_dialog_run(GTK_DIALOG(dig));
+        gtk_widget_destroy(GTK_WIDGET(dig));
+    }
+    else
+    {
+        // Filling the contact details
+        gtk_label_set_text(GTK_LABEL( d->check_details.contact_name_lbl), gtk_entry_get_text(GTK_ENTRY(d->enter_details.contact_name)));
+        gtk_label_set_text(GTK_LABEL( d->check_details.contact_m_no_lbl), gtk_entry_get_text(GTK_ENTRY(d->enter_details.contact_number)));
+        gtk_label_set_text(GTK_LABEL( d->check_details.contact_email_lbl), gtk_entry_get_text(GTK_ENTRY(d->enter_details.contact_mail)));
+
+        // Remove all the widgets from the lat_box if existed
+        gtk_container_foreach(GTK_CONTAINER(d->check_details.check_pass_dets),rem_container_wgts,d->check_details.check_pass_dets);
+
+        // Fill the stack
+        fill_check_scr_lst_box(d);
+        
+        gtk_stack_set_visible_child(GTK_STACK(d->stack),d->check_details.scr);
+    }
 }
 
 #endif

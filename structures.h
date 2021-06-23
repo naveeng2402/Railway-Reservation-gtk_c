@@ -33,6 +33,7 @@ typedef struct _choose_train
 
     pthread_t dest_date_thread, get_trains_thread; // Thread
     int count, len; // Used in callbacks
+    int is_revealer_visible;
     char *selected_dest, *selected_date;
     char **dest_val, **date_val, ***lst_box_content; // arrays to store data 
     /* ***lst_box_content is a 2d array of string the cols of each arrays are listed in the enum lstbox_content */
@@ -50,14 +51,14 @@ typedef struct _choose_seats
 
     pthread_t get_seats_thread; // Threads
     GdkPixbuf **pix; /* Array to store pix_buffs -> avail, booked, window*/
-    int *selected_seats; // Array containing selected seat numbers
     int count;
     char ***seats, **train_data; // arrays
 }W_choose_seats;
 
+// Structure Containing widgets of enter_details
 typedef struct _enter_details
 {
-    GtkWidget *scr;
+    GtkWidget *scr; // Grid of the screen
 
     GtkWidget *pass_dets; // Stack 
     GtkWidget *back, *book; // Buttons
@@ -69,6 +70,21 @@ typedef struct _enter_details
     GtkWidget **pass_name, **pass_age, **pass_gen; // arrays of passenger detail entries
 
 }W_enter_details;
+
+// Structure Containing widgets of check details
+typedef struct _check_details
+{
+    GtkWidget *scr; // Grid of the screen
+
+    GtkWidget *details_box; // This Gtk Box will be used in the next screen
+
+    GtkWidget *check_pass_dets; // List Box
+    GtkWidget *back, *confirm; // Buttons
+    GtkWidget *contact_name_lbl, *contact_m_no_lbl, *contact_email_lbl; // Labels
+    
+    int count; // used in callbacks
+}W_check_details;
+
 
 // Structure Containing all the data
 typedef struct _data
@@ -82,6 +98,7 @@ typedef struct _data
     W_choose_train choose_train;
     W_choose_seats choose_seats;
     W_enter_details enter_details;
+    W_check_details check_details;
     
     GHashTable *pixbuffs; // Hash table to store gdkpixbuffs, GtkScrolledWindow and GtkImages  
 }DATA;

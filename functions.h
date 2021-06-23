@@ -8,6 +8,10 @@
 #include "slots.h"
 #include "callbacks.h"
 
+#ifdef _WIN32 // Adding the module for sleep function(Platform dependent) 
+    #include <Windows.h>
+#endif
+
 G_MODULE_EXPORT void size_allocate_flowbox(GtkWidget*, GtkAllocation*, gpointer); // This is declared here as the g_signal_connect fails
 
 /* Getting pointors for required widgets */
@@ -57,6 +61,16 @@ void get_widgets(GtkBuilder* b, DATA* d)
     d->enter_details.contact_name = GTK_WIDGET(gtk_builder_get_object(b,"enter_details_contact_name"));
     d->enter_details.contact_number = GTK_WIDGET(gtk_builder_get_object(b,"enter_details_contact_m_no"));
     d->enter_details.contact_mail = GTK_WIDGET(gtk_builder_get_object(b,"enter_details_contact_email"));
+
+    // Widgets for check_details
+    d->check_details.scr = GTK_WIDGET(gtk_builder_get_object(b,"check_details_scr"));
+    d->check_details.check_pass_dets = GTK_WIDGET(gtk_builder_get_object(b,"check_details_passengers_lst_box"));
+    d->check_details.back = GTK_WIDGET(gtk_builder_get_object(b,"check_details_scr_back_btn"));
+    d->check_details.confirm = GTK_WIDGET(gtk_builder_get_object(b,"check_details_scr_continue_btn"));
+    d->check_details.contact_name_lbl = GTK_WIDGET(gtk_builder_get_object(b,"check_details_scr_contact_name_lbl"));
+    d->check_details.contact_m_no_lbl = GTK_WIDGET(gtk_builder_get_object(b,"check_details_scr_m_no_lbl"));
+    d->check_details.contact_email_lbl = GTK_WIDGET(gtk_builder_get_object(b,"check_details_scr_email_lbl"));
+    d->check_details.details_box = GTK_WIDGET(gtk_builder_get_object(b,"check_details_detail_box"));
 
 }
 
@@ -112,13 +126,17 @@ void get_imgs(GtkBuilder* b,GHashTable* tbl)
     populate_tbl(b,tbl,"enter_details_scr_back_scrl","enter_details_scr_back_ico","back");
     populate_tbl(b,tbl,"enter_details_bk_scrl","enter_details_bk_ico","book_ticket");
 
+    // For check details
+    populate_tbl(b,tbl,"check_details_scr_back_scrl","check_details_scr_back_ico","back");
+    populate_tbl(b,tbl,"check_details_scr_confirm_scrl","check_details_scr_confirm_ico","continue");
+
 }
 
 /* Fill the flowboxes in the choose seat */
 void fill_flowboxes(W_choose_seats *data)
 {
     GtkWidget *box, *aspect, *label;
-    GtkWidget *scroll, *viewport, *img;
+    GtkWidget *scroll, *img;
     int is_booked, is_window;
     char *seat_status=""; /* avail, booked, win */
 
@@ -191,6 +209,7 @@ void fill_flowboxes(W_choose_seats *data)
 
 }
 
+/* Deselects a flowbox child */
 void flowbox_deselect(GtkFlowBox* fbox, GtkFlowBoxChild* child, gpointer data)
 {   
     /* Deselects the seat no if the seat is booked */
@@ -265,6 +284,112 @@ void fill_det_stack(W_enter_details *data)
 
     gtk_widget_show_all(data->pass_dets);
 
+}
+
+/* Fills the lst_box inside check details scr */
+void fill_check_scr_lst_box(DATA *data)
+{
+    DATA *d = data;
+    GtkLabel *seat_no, *name, *age, *gender; /* Lables that are inside the row */
+    GtkWidget *row, *box;
+    const gchar *lbl_content;
+    int size = 15000;
+
+    // Remove all the data from the list_box if existed
+    gtk_container_foreach(GTK_CONTAINER(d->check_details.check_pass_dets),rem_container_wgts,d->check_details.check_pass_dets);
+
+        /* Getting the header */
+    // seat number
+    seat_no = GTK_LABEL(gtk_label_new(""));
+    gtk_label_set_use_markup(seat_no,TRUE);
+    gtk_label_set_markup(seat_no,"<b><span size=\"15000\">Seat No</span></b>");
+    gtk_widget_set_margin_start(GTK_WIDGET(seat_no),30);
+
+    // name
+    name = GTK_LABEL(gtk_label_new(""));
+    gtk_label_set_use_markup(name,TRUE);
+    gtk_label_set_markup(name,"<b><span size=\"15000\">Name</span></b>");
+
+    // age
+    age = GTK_LABEL(gtk_label_new(""));
+    gtk_label_set_use_markup(age,TRUE);
+    gtk_label_set_markup(age,"<b><span size=\"15000\">Age</span></b>");
+
+    // gender
+    gender = GTK_LABEL(gtk_label_new(""));
+    gtk_label_set_use_markup(gender,TRUE);
+    gtk_label_set_markup(gender,"<b><span size=\"15000\">Gender</span></b>");
+
+    // Row for list box
+    row = gtk_list_box_row_new();
+    gtk_widget_set_size_request(row,50,60);
+    gtk_list_box_row_set_selectable(GTK_LIST_BOX_ROW(row),FALSE);
+    gtk_list_box_row_set_activatable(GTK_LIST_BOX_ROW(row),FALSE);
+
+    // GtkBox for lables
+    box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+    gtk_box_set_homogeneous(GTK_BOX(box),TRUE);
+    gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(seat_no),TRUE,TRUE,0); 
+    gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(name),TRUE,TRUE,0); 
+    gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(age),TRUE,TRUE,0); 
+    gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(gender),TRUE,TRUE,0); 
+
+    // Adding wids to the parents
+    gtk_container_add(GTK_CONTAINER(row),box);
+    gtk_list_box_insert(GTK_LIST_BOX(d->check_details.check_pass_dets),row,-1);
+
+    for (int i = 0; i < d->enter_details.no_of_pass; i++)
+    {
+        // seat number
+        lbl_content = g_strdup_printf("<b><span size=\"%d\">%s</span></b>", size, d->enter_details.seat_nos[i]);
+
+        seat_no = GTK_LABEL(gtk_label_new(""));
+        gtk_label_set_use_markup(seat_no,TRUE);
+        gtk_label_set_markup(seat_no,lbl_content);
+        gtk_widget_set_margin_start(GTK_WIDGET(seat_no),30);
+
+        // name
+        lbl_content = g_strdup_printf("<b><span size=\"%d\">%s</span></b>", size, gtk_entry_get_text(GTK_ENTRY(d->enter_details.pass_name[i])));
+
+        name = GTK_LABEL(gtk_label_new(""));
+        gtk_label_set_use_markup(name,TRUE);
+        gtk_label_set_markup(name,lbl_content);
+
+        // Age
+        lbl_content = g_strdup_printf("<b><span size=\"%d\">%s</span></b>", size, gtk_entry_get_text(GTK_ENTRY(d->enter_details.pass_age[i])));
+
+        age = GTK_LABEL(gtk_label_new(""));
+        gtk_label_set_use_markup(age,TRUE);
+        gtk_label_set_markup(age,lbl_content);
+
+        // Gender
+        lbl_content = g_strdup_printf("<b><span size=\"%d\">%s</span></b>", size, gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(d->enter_details.pass_gen[i])));
+
+        gender = GTK_LABEL(gtk_label_new(""));
+        gtk_label_set_use_markup(gender,TRUE);
+        gtk_label_set_markup(gender,lbl_content);
+
+        // Row for list box
+        row = gtk_list_box_row_new();
+        gtk_widget_set_size_request(row,50,60);
+        gtk_list_box_row_set_selectable(GTK_LIST_BOX_ROW(row),FALSE);
+        gtk_list_box_row_set_activatable(GTK_LIST_BOX_ROW(row),FALSE);
+
+        // GtkBox for lables
+        box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL,0);
+        gtk_box_set_homogeneous(GTK_BOX(box),TRUE);
+        gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(seat_no),TRUE,TRUE,0); 
+        gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(name),TRUE,TRUE,0); 
+        gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(age),TRUE,TRUE,0); 
+        gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(gender),TRUE,TRUE,0); 
+
+        // Adding wids to the parents
+        gtk_container_add(GTK_CONTAINER(row),box);
+        gtk_list_box_insert(GTK_LIST_BOX(d->check_details.check_pass_dets),row,-1);
+
+    }
+
+    gtk_widget_show_all(d->check_details.check_pass_dets);
 }
 
 /* Get the data from GList */
@@ -506,6 +631,9 @@ void* start_load(void* arg)
 
     /* Change the screen */
     gtk_stack_set_visible_child(GTK_STACK(d->stack), d->welcome.scr);
+
+    return 0;    
+
 }
 
 void* get_dest_date(void* arg)
@@ -519,7 +647,7 @@ void* get_dest_date(void* arg)
     sqlite3* db;
 
     int date_len, dest_len;
-    char *sql="", **dates_val, **dest_val;
+    char *sql="";
     time_t *now=malloc(sizeof(time_t));
 
     time(now);
@@ -559,6 +687,9 @@ void* get_dest_date(void* arg)
     }
 
     sqlite3_close(db);
+
+    return 0;    
+
 }
 
 void* get_list_content(void* arg)
@@ -620,6 +751,9 @@ void* get_list_content(void* arg)
         
     }
     sqlite3_close(db);
+
+    return 0;    
+
 }
 
 void* get_seats_data(void* arg)
@@ -646,6 +780,8 @@ void* get_seats_data(void* arg)
     data->count = 0;
     sqlite3_exec(db,sql,callback_get_seat_data,data,NULL);
 
+    sqlite3_close(db);
+    
     // for (int i = 0; i < 100; i++)
     // {
     //     for (int j = 0; j < 4; j++)
@@ -655,6 +791,7 @@ void* get_seats_data(void* arg)
     //     printf("\n");
     // }
     
+    return 0;    
 
 }
 
