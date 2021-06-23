@@ -76,8 +76,6 @@ typedef struct _check_details
 {
     GtkWidget *scr; // Grid of the screen
 
-    GtkWidget *details_box; // This Gtk Box will be used in the next screen
-
     GtkWidget *check_pass_dets; // List Box
     GtkWidget *back, *confirm; // Buttons
     GtkWidget *contact_name_lbl, *contact_m_no_lbl, *contact_email_lbl; // Labels
@@ -85,6 +83,23 @@ typedef struct _check_details
     int count; // used in callbacks
 }W_check_details;
 
+// Structure Containing widgets of check details
+typedef struct _view_ticket
+{
+    GtkWidget *scr; // Grid to the screen
+
+    GtkWidget *details_box; // Box contained inside scrolled window
+
+    GtkWidget *tic_num_lbl, *pass_no_lbl, *date_of_bk_lbl, *time_of_bk_lbl; // Lables inside ticket details
+    GtkWidget *train_num_lbl, *train_name_lbl, *date_of_dep_lbl, *time_of_dept_lbl, *to_lbl; // Lables inside train details
+    GtkWidget *ok, *download; // Buttons
+
+    GtkWidget *view_contact_name_lbl, *view_contact_m_no_lbl, *view_contact_email_lbl, *view_lst_box; // data from check_details
+
+    pthread_t bk_tic_thread; // Thread that books ticket
+    int count; // used in callbacks
+
+}W_view_ticket;
 
 // Structure Containing all the data
 typedef struct _data
@@ -99,6 +114,7 @@ typedef struct _data
     W_choose_seats choose_seats;
     W_enter_details enter_details;
     W_check_details check_details;
+    W_view_ticket view_tic;
     
     GHashTable *pixbuffs; // Hash table to store gdkpixbuffs, GtkScrolledWindow and GtkImages  
 }DATA;

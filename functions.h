@@ -3,6 +3,7 @@
 
 #include <gtk/gtk.h>
 #include <sqlite3.h>
+#include <stdlib.h>
 #include <time.h>
 #include "structures.h"
 #include "slots.h"
@@ -70,7 +71,26 @@ void get_widgets(GtkBuilder* b, DATA* d)
     d->check_details.contact_name_lbl = GTK_WIDGET(gtk_builder_get_object(b,"check_details_scr_contact_name_lbl"));
     d->check_details.contact_m_no_lbl = GTK_WIDGET(gtk_builder_get_object(b,"check_details_scr_m_no_lbl"));
     d->check_details.contact_email_lbl = GTK_WIDGET(gtk_builder_get_object(b,"check_details_scr_email_lbl"));
-    d->check_details.details_box = GTK_WIDGET(gtk_builder_get_object(b,"check_details_detail_box"));
+
+    // Widgets fot view ticket
+    d->view_tic.scr = GTK_WIDGET(gtk_builder_get_object(b,"view_ticket_scr"));
+    d->view_tic.details_box = GTK_WIDGET(gtk_builder_get_object(b,"view_details_box"));
+    d->view_tic.ok = GTK_WIDGET(gtk_builder_get_object(b,"view_ticket_scr_ok_btn"));
+    d->view_tic.download = GTK_WIDGET(gtk_builder_get_object(b,"view_ticket_scr_dwnld_btn"));
+    d->view_tic.tic_num_lbl = GTK_WIDGET(gtk_builder_get_object(b,"ticket_num"));
+    d->view_tic.pass_no_lbl = GTK_WIDGET(gtk_builder_get_object(b,"no_of_pass"));
+    d->view_tic.date_of_bk_lbl = GTK_WIDGET(gtk_builder_get_object(b,"dt_of_booking"));
+    d->view_tic.time_of_bk_lbl = GTK_WIDGET(gtk_builder_get_object(b,"time_of_booking"));
+    d->view_tic.train_num_lbl = GTK_WIDGET(gtk_builder_get_object(b,"train_num"));
+    d->view_tic.train_name_lbl = GTK_WIDGET(gtk_builder_get_object(b,"train_name"));
+    d->view_tic.date_of_dep_lbl = GTK_WIDGET(gtk_builder_get_object(b,"dep_dt"));
+    d->view_tic.time_of_dept_lbl = GTK_WIDGET(gtk_builder_get_object(b,"dep_time"));
+    d->view_tic.to_lbl = GTK_WIDGET(gtk_builder_get_object(b,"to"));
+
+    d->view_tic.view_contact_name_lbl = GTK_WIDGET(gtk_builder_get_object(b,"view_check_details_scr_contact_name_lbl"));
+    d->view_tic.view_contact_m_no_lbl = GTK_WIDGET(gtk_builder_get_object(b,"view_check_details_scr_m_no_lbl"));
+    d->view_tic.view_contact_email_lbl = GTK_WIDGET(gtk_builder_get_object(b,"view_check_details_scr_email_lbl"));
+    d->view_tic.view_lst_box = GTK_WIDGET(gtk_builder_get_object(b,"view_check_details_passengers_lst_box"));
 
 }
 
@@ -130,6 +150,10 @@ void get_imgs(GtkBuilder* b,GHashTable* tbl)
     populate_tbl(b,tbl,"check_details_scr_back_scrl","check_details_scr_back_ico","back");
     populate_tbl(b,tbl,"check_details_scr_confirm_scrl","check_details_scr_confirm_ico","continue");
 
+    // For view details
+    populate_tbl(b,tbl,"view_ticket_scr_dwnld_scrl","view_ticket_scr_dwnld_ico","continue");
+    populate_tbl(b,tbl,"view_ticket_scr_ok_scrl","view_ticket_scr_ok_ico","continue");
+
 }
 
 /* Fill the flowboxes in the choose seat */
@@ -146,6 +170,12 @@ void fill_flowboxes(W_choose_seats *data)
     data->pix[AVAIL_SEAT] = gdk_pixbuf_new_from_resource("/icons/seat_avail.svg",NULL);
     data->pix[BOOKED_SEAT] = gdk_pixbuf_new_from_resource("/icons/seat_booked.svg",NULL);
     data->pix[WIN_SEAT] = gdk_pixbuf_new_from_resource("/icons/win_seat.svg",NULL);
+
+    /* Removing widgets if existed */
+    gtk_container_foreach(GTK_CONTAINER(data->ac),rem_container_wgts,data->ac);
+    gtk_container_foreach(GTK_CONTAINER(data->non_ac),rem_container_wgts,data->non_ac);
+    gtk_container_foreach(GTK_CONTAINER(data->ac_sleeper),rem_container_wgts,data->ac_sleeper);
+    gtk_container_foreach(GTK_CONTAINER(data->non_ac_sleeper),rem_container_wgts,data->non_ac_sleeper);
 
     for (int i = 0; i < 100; i++)
     {
@@ -286,8 +316,8 @@ void fill_det_stack(W_enter_details *data)
 
 }
 
-/* Fills the lst_box inside check details scr */
-void fill_check_scr_lst_box(DATA *data)
+/* Fills the lst_box inside check details scr and view ticket scr */
+void fill_check_scr_lst_box(DATA *data, int flag)
 {
     DATA *d = data;
     GtkLabel *seat_no, *name, *age, *gender; /* Lables that are inside the row */
@@ -296,7 +326,10 @@ void fill_check_scr_lst_box(DATA *data)
     int size = 15000;
 
     // Remove all the data from the list_box if existed
-    gtk_container_foreach(GTK_CONTAINER(d->check_details.check_pass_dets),rem_container_wgts,d->check_details.check_pass_dets);
+    if (flag == 0)
+        gtk_container_foreach(GTK_CONTAINER(d->check_details.check_pass_dets),rem_container_wgts,d->check_details.check_pass_dets);
+    else if (flag == 1)
+        gtk_container_foreach(GTK_CONTAINER(d->view_tic.view_lst_box),rem_container_wgts,d->view_tic.view_lst_box);
 
         /* Getting the header */
     // seat number
@@ -336,7 +369,10 @@ void fill_check_scr_lst_box(DATA *data)
 
     // Adding wids to the parents
     gtk_container_add(GTK_CONTAINER(row),box);
-    gtk_list_box_insert(GTK_LIST_BOX(d->check_details.check_pass_dets),row,-1);
+    if (flag == 0)
+        gtk_list_box_insert(GTK_LIST_BOX(d->check_details.check_pass_dets),row,-1);
+    else if (flag==1)
+        gtk_list_box_insert(GTK_LIST_BOX(d->view_tic.view_lst_box),row,-1);
 
     for (int i = 0; i < d->enter_details.no_of_pass; i++)
     {
@@ -385,11 +421,17 @@ void fill_check_scr_lst_box(DATA *data)
 
         // Adding wids to the parents
         gtk_container_add(GTK_CONTAINER(row),box);
-        gtk_list_box_insert(GTK_LIST_BOX(d->check_details.check_pass_dets),row,-1);
+        if (flag == 0)
+            gtk_list_box_insert(GTK_LIST_BOX(d->check_details.check_pass_dets),row,-1);
+        else if(flag == 1)
+            gtk_list_box_insert(GTK_LIST_BOX(d->view_tic.view_lst_box),row,-1);
 
     }
 
-    gtk_widget_show_all(d->check_details.check_pass_dets);
+    if (flag==0)
+        gtk_widget_show_all(d->check_details.check_pass_dets);
+    else if (flag == 1)
+        gtk_widget_show_all(d->view_tic.view_lst_box);
 }
 
 /* Get the data from GList */
@@ -671,6 +713,10 @@ void* get_dest_date(void* arg)
     sql = g_strdup_printf("SELECT DISTINCT dates_val FROM DATES WHERE unix_time>%ld",*now);
     sqlite3_exec(db,sql,callback_get_date,data,NULL);
 
+    // Removing all the widgets if already exis
+    gtk_combo_box_text_remove_all(GTK_COMBO_BOX_TEXT(data->dest));
+    gtk_combo_box_text_remove_all(GTK_COMBO_BOX_TEXT(data->date));
+
     // Adding the data to combobox
     gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(data->date),"Select Date");
     gtk_combo_box_set_active(GTK_COMBO_BOX(data->date),0);
@@ -793,6 +839,86 @@ void* get_seats_data(void* arg)
     
     return 0;    
 
+}
+
+void* book_ticket(void* arg)
+{
+    DATA* data = arg;
+    sqlite3* db;
+
+    char* sql = "";
+
+    time_t *now = malloc(sizeof(time_t));
+    struct tm *tm;
+    int bk_date_id; char  *bk_time=malloc(1), *todate=malloc(1);
+    const char *cntct_name, *m_no, *email, *train_id;
+
+    cntct_name = gtk_entry_get_text(GTK_ENTRY(data->enter_details.contact_name));
+    m_no = gtk_entry_get_text(GTK_ENTRY(data->enter_details.contact_number));
+    email = gtk_entry_get_text(GTK_ENTRY(data->enter_details.contact_mail));
+    train_id = data->choose_seats.train_data[ID];
+
+    time(now);
+    tm = localtime(now);
+    strftime(bk_time,-1,"%H.%M",tm); // Getting current time 
+    strftime(todate,-1,"%d-%m-%Y",tm); // Grtting current date
+
+    sqlite3_open("rsc/data", &db);
+
+    sql = g_strdup_printf("SELECT id from DATES WHERE dates_val = \"%s\"", todate);
+    sqlite3_exec(db, sql, callback_get_id, &bk_date_id, NULL);
+
+    printf("%d\n", bk_date_id);
+
+    // Adding data to ticket table
+    sql = g_strdup_printf(
+            "INSERT INTO TICKET \
+            (\"no_of_passengers\", \"contact_name\", \"mobile_no\", \"email_id\", \"time_of_bk\", \"date_of_bk\", \"ticket_train_id\") \
+            VALUES (%d, \"%s\", \"%s\", \"%s\", %s, %d, %s)",
+            data->enter_details.no_of_pass, cntct_name,m_no,email,bk_time,bk_date_id,train_id);
+    sqlite3_exec(db,sql,NULL,NULL,NULL);
+
+    int seat_id, gender_id, tic_id;
+    const char *name, *age; char *gender;
+
+    sqlite3_exec(db, "SELECT seq FROM sqlite_sequence WHERE name = \"TICKET\"",callback_get_id,&tic_id,NULL);
+
+    // Adding data to passenger table
+    for (int i = 0; i < data->enter_details.no_of_pass; i++)
+    {
+        sql = g_strdup_printf("SELECT id FROM SEAT WHERE train_id=%s AND seat_no=%s",train_id,data->enter_details.seat_nos[i]);
+        sqlite3_exec(db,sql,callback_get_id,&seat_id,NULL);
+
+        sql = g_strdup_printf("UPDATE SEAT set is_booked = 1 WHERE id=%d",seat_id);
+        sqlite3_exec(db,sql,NULL,NULL,NULL);
+
+        gender = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(data->enter_details.pass_gen[i]));
+
+        gender_id = (strcmp(gender,"Male")==0)?MALE:((strcmp(gender,"Female")==0)?FEMALE:TRANSGENDER);
+        name = gtk_entry_get_text(GTK_ENTRY(data->enter_details.pass_name[i]));
+        age = gtk_entry_get_text(GTK_ENTRY(data->enter_details.pass_age[i]));
+
+        sql = g_strdup_printf("INSERT INTO PASSENGERS (\"passenger_name\",\"age\",\"gender_id\",\"passenger_seat\",\"ticket_id\") VALUES (\"%s\",\"%s\",%d,%d,%d)",name,age,gender_id,seat_id,tic_id);
+        sqlite3_exec(db,sql,NULL,NULL,NULL);
+    }
+    
+    gtk_label_set_text(GTK_LABEL(data->view_tic.tic_num_lbl), g_strdup_printf("%d",tic_id));
+    gtk_label_set_text(GTK_LABEL(data->view_tic.pass_no_lbl), g_strdup_printf("%d",data->enter_details.no_of_pass));
+    gtk_label_set_text(GTK_LABEL(data->view_tic.date_of_bk_lbl), todate);
+    gtk_label_set_text(GTK_LABEL(data->view_tic.time_of_bk_lbl), bk_time);
+
+    gtk_label_set_text(GTK_LABEL(data->view_tic.train_num_lbl), train_id);
+    gtk_label_set_text(GTK_LABEL(data->view_tic.train_name_lbl), data->choose_seats.train_data[TRAIN_DET_NAME]);
+    gtk_label_set_text(GTK_LABEL(data->view_tic.date_of_dep_lbl), data->choose_train.selected_date);
+    gtk_label_set_text(GTK_LABEL(data->view_tic.time_of_dept_lbl), data->choose_seats.train_data[TRAIN_DET_TIME]);
+    gtk_label_set_text(GTK_LABEL(data->view_tic.to_lbl), data->choose_train.selected_dest);
+
+
+
+    sqlite3_close(db);
+    SLEEP(1);
+    gtk_stack_set_visible_child(GTK_STACK(data->stack),data->view_tic.scr);
+    return 0;
 }
 
 #endif

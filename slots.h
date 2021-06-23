@@ -17,6 +17,8 @@ void quit(AtkWindow *win, gpointer data)
     printf("Joined Thread 3\n");
     pthread_join(d->choose_seats.get_seats_thread, NULL);
     printf("Joined Thread 4\n");
+    pthread_join(d->view_tic.bk_tic_thread, NULL);
+    printf("Joined Thread 5\n");
     gtk_main_quit();
 }
 
@@ -434,10 +436,40 @@ void enter_details_continue_clicked(GtkButton* btn,gpointer data)
         gtk_container_foreach(GTK_CONTAINER(d->check_details.check_pass_dets),rem_container_wgts,d->check_details.check_pass_dets);
 
         // Fill the stack
-        fill_check_scr_lst_box(d);
+        fill_check_scr_lst_box(d,0);
         
         gtk_stack_set_visible_child(GTK_STACK(d->stack),d->check_details.scr);
     }
 }
+
+void check_details_continue_clicked(GtkButton* btn, gpointer data)
+{
+    DATA *d = data;
+
+    /* Changing to load screen */
+    gtk_label_set_markup(GTK_LABEL(d->load.title),"<b><span size=\"30000\">Booking your ticket\n\n</span></b>");
+    gtk_stack_set_visible_child(GTK_STACK(d->stack),d->load.scr);
+
+    /* Changing to view ticket */
+        // Filling the contact details
+    gtk_label_set_text(GTK_LABEL( d->view_tic.view_contact_name_lbl), gtk_entry_get_text(GTK_ENTRY(d->enter_details.contact_name)));
+    gtk_label_set_text(GTK_LABEL( d->view_tic.view_contact_m_no_lbl), gtk_entry_get_text(GTK_ENTRY(d->enter_details.contact_number)));
+    gtk_label_set_text(GTK_LABEL( d->view_tic.view_contact_email_lbl), gtk_entry_get_text(GTK_ENTRY(d->enter_details.contact_mail)));
+
+    // Remove all the widgets from the lat_box if existed
+    gtk_container_foreach(GTK_CONTAINER(d->check_details.check_pass_dets),rem_container_wgts,d->check_details.check_pass_dets);
+
+    pthread_create(&(d->view_tic.bk_tic_thread),NULL,book_ticket,d);
+
+    // Fill the stack
+    fill_check_scr_lst_box(d,1);
+}
+
+void view_ticket_ok(GtkButton* btn,gpointer data)
+{
+    DATA *d = data;
+    gtk_stack_set_visible_child(GTK_STACK(d->stack),d->welcome.scr);
+}
+
 
 #endif

@@ -19,7 +19,7 @@ void get_lst_data(gpointer,gpointer);
 void fill_flowboxs(W_choose_seats*);
 void flowbox_deselect(GtkFlowBox*, GtkFlowBoxChild*, gpointer);
 void fill_det_stack(W_enter_details*);
-void fill_check_scr_lst_box(DATA*);
+void fill_check_scr_lst_box(DATA*, int);
 
 void SLEEP(int);
 
@@ -61,12 +61,15 @@ G_MODULE_EXPORT void flowbox_selection_changed(GtkFlowBox*, gpointer);
 G_MODULE_EXPORT void flowbox_child_activated(GtkFlowBox*, GtkFlowBoxChild*, gpointer);
 G_MODULE_EXPORT void choose_seat_continue_clicked(GtkButton*,gpointer);
 G_MODULE_EXPORT void enter_details_continue_clicked(GtkButton*,gpointer);
+G_MODULE_EXPORT void check_details_continue_clicked(GtkButton*,gpointer);
+G_MODULE_EXPORT void view_ticket_ok(GtkButton*,gpointer);
 
 /* Thread Functions */
 void* start_load(void*);
 void* get_dest_date(void*);
 void* get_list_content(void*);
 void* get_seats_data(void*);
+void* book_ticket(void*);
 
 int main(int argc, char *argv[])
 {
