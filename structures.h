@@ -90,34 +90,21 @@ typedef struct _view_ticket
 
     GtkWidget *details_box; // Box contained inside scrolled window
 
-    GtkWidget *tic_num_lbl, *pass_no_lbl, *date_of_bk_lbl, *time_of_bk_lbl; // Lables inside ticket details
-    GtkWidget *train_num_lbl, *train_name_lbl, *date_of_dep_lbl, *time_of_dept_lbl, *to_lbl; // Lables inside train details
     GtkWidget *ok, *download; // Buttons
-
-    GtkWidget *view_contact_name_lbl, *view_contact_m_no_lbl, *view_contact_email_lbl, *view_lst_box; // data from check_details
+    GtkWidget *web_view;
 
     pthread_t bk_tic_thread; // Thread that books ticket
     int count; // used in callbacks
 
 }W_view_ticket;
 
-// Structure Containing all the data
-typedef struct _data
+typedef struct _download_tic
 {
-    pthread_t start_thread; // Threads
+    GtkWidget *scr;
+    GtkWidget *tic_num, *m_num;
+    GtkWidget *back, *get_tic;
 
-    GtkWidget *win ; GtkWidget *stack;
-    
-    W_load_scr load;
-    W_welcome_scr welcome;
-    W_choose_train choose_train;
-    W_choose_seats choose_seats;
-    W_enter_details enter_details;
-    W_check_details check_details;
-    W_view_ticket view_tic;
-    
-    GHashTable *pixbuffs; // Hash table to store gdkpixbuffs, GtkScrolledWindow and GtkImages  
-}DATA;
+}W_download_tic;
 
 /*******************************************************************************************
                             SQLITE STRUCTURES
@@ -134,6 +121,34 @@ typedef struct _default_trains
     int count; /* Count is used to keep track of iteration in callbacks */
     
 }START_LOAD;
+
+typedef struct _html
+{
+    pthread_t create_html_thread;
+    char **details, ***passenger_details;
+    int tic_no, count;
+}HTML;
+
+// Structure Containing all the data
+typedef struct _data
+{
+    pthread_t start_thread; // Threads
+
+    GtkWidget *win ; GtkWidget *stack;
+    
+    W_load_scr load;
+    W_welcome_scr welcome;
+    W_choose_train choose_train;
+    W_choose_seats choose_seats;
+    W_enter_details enter_details;
+    W_check_details check_details;
+    W_view_ticket view_tic;
+    W_download_tic download_tic;
+
+    HTML tic_dets;
+    
+    GHashTable *pixbuffs; // Hash table to store gdkpixbuffs, GtkScrolledWindow and GtkImages  
+}DATA;
 
 enum default_trains
 {
@@ -169,6 +184,32 @@ enum seats
     SEAT_IS_WINDOW
 };
 
+enum html
+{
+    PASS_NO,
+    BK_DATE,
+    BK_TIME,
+    PRICE,
+    TRIAN_ID,
+    TRAIN_NAME,
+    DESTINATION,
+    DEP_DATE,
+    DEP_TIME,
+    CONTACT_NAME,
+    CONTACT_NUMBER,
+    CONTACT_EMAIL,
+    HTML_NOS
+};
+
+enum passenger_details
+{
+    PASS_SEAT_NO,
+    PASS_NAME,
+    PASS_AGE,
+    PASS_GENDER,
+    PASS_CLASS,
+    PASS_DET_NOS
+};
 
 enum Pixbuff
     {

@@ -89,6 +89,35 @@ int callback_get_seat_data(void *data, int argc, char **argv, char **azColName)
     return 0;
 }
 
+int callback_get_ticket_details(void *data, int argc, char **argv, char **azColName)
+{
+    HTML *d = data;
+    
+    d->details = calloc(argc,sizeof(char*));
+
+    for (int i = 0; i < argc; i++)
+    {
+        d->details[i] = calloc(strlen(argv[i]),sizeof(char));
+        strcpy(d->details[i],argv[i]);
+    }
+    return 0;
+}
+
+int callback_get_passenger_details(void *data, int argc, char **argv, char **azColName)
+{
+    HTML *d = data;
+    
+    d->passenger_details[d->count] = calloc(argc,sizeof(char*));
+
+    for (int i = 0; i < argc; i++)
+    {
+        d->passenger_details[d->count][i] = calloc(strlen(argv[i]),sizeof(char));
+        strcpy(d->passenger_details[d->count][i], argv[i]);
+    }
+    d->count++;
+    return 0;
+}
+
 
 void rem_container_wgts(GtkWidget *w, gpointer data)
 {
