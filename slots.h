@@ -484,7 +484,7 @@ void download_scr_get_tic_btn_clicked(GtkButton* btn,gpointer data)
 void save_tic(GtkButton* btn,gpointer data)
 {
     DATA* d = data;
-    char *filename, *content = "", *c = "";
+    char *filename;
 
     GtkWidget *dig = gtk_file_chooser_dialog_new("SAVE TICKET",GTK_WINDOW(d->win),GTK_FILE_CHOOSER_ACTION_SAVE,"Cancel",
                                       GTK_RESPONSE_CANCEL,
@@ -501,15 +501,7 @@ void save_tic(GtkButton* btn,gpointer data)
     gtk_widget_destroy(dig);
 
     // copy file
-    FILE *source = fopen("rsc/temp.html","r"), *dest = fopen(&(filename[7]), "w");
-    c = fgets(content,-1,source);
-    while (c != NULL)
-    {
-        printf("%s\n",content);
-        fprintf(dest,"%s",content);
-    }
-    
-    fclose(source); fclose(dest);
+    system(g_strdup_printf("cp rsc/temp.html %s", &(filename[7])));
 }
 
 void download_tic(GtkButton* btn,gpointer data)
