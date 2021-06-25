@@ -1,5 +1,6 @@
 #include <gtk/gtk.h>
 #include <pthread.h>
+#include <webkit2/webkit2.h>
 #include "structures.h"
 #include "slots.h"
 #include "functions.h"
@@ -19,7 +20,7 @@ void get_lst_data(gpointer,gpointer);
 void fill_flowboxs(W_choose_seats*);
 void flowbox_deselect(GtkFlowBox*, GtkFlowBoxChild*, gpointer);
 void fill_det_stack(W_enter_details*);
-void fill_check_scr_lst_box(DATA*, int);
+void fill_check_scr_lst_box(DATA*);
 
 void SLEEP(int);
 
@@ -40,6 +41,9 @@ int callback_get_date(void *, int, char **, char **);
 int callback_get_lstbox_content(void *, int, char **, char **);
 int callback_get_avail_seats(void *, int, char **, char **);
 int callback_get_seat_data(void *, int, char **, char **);
+int callback_get_ticket_details(void *, int, char **, char **);
+int callback_get_passenger_details(void *, int, char **, char **);
+int callback_get_m_no(void *, int, char **, char **);
 
 void rem_container_wgts(GtkWidget*, gpointer);
 void get_seat_nums(gpointer, gpointer);
@@ -63,6 +67,9 @@ G_MODULE_EXPORT void choose_seat_continue_clicked(GtkButton*,gpointer);
 G_MODULE_EXPORT void enter_details_continue_clicked(GtkButton*,gpointer);
 G_MODULE_EXPORT void check_details_continue_clicked(GtkButton*,gpointer);
 G_MODULE_EXPORT void view_ticket_ok(GtkButton*,gpointer);
+G_MODULE_EXPORT void download_scr_get_tic_btn_clicked(GtkButton*,gpointer);
+G_MODULE_EXPORT void download_tic(GtkButton*, gpointer);
+G_MODULE_EXPORT void save_tic(GtkButton*, gpointer);
 
 /* Thread Functions */
 void* start_load(void*);
@@ -70,6 +77,8 @@ void* get_dest_date(void*);
 void* get_list_content(void*);
 void* get_seats_data(void*);
 void* book_ticket(void*);
+void* create_html(void*);
+void* check_num(void*);
 
 int main(int argc, char *argv[])
 {
@@ -80,7 +89,12 @@ int main(int argc, char *argv[])
 
     data->pixbuffs = g_hash_table_new(g_str_hash,NULL); // Initialising the hash table
 
+    data->tic_dets.tic_no = 0;
+
     gtk_init(&argc, &argv);
+
+    webkit_web_view_get_type();
+    webkit_settings_get_type();
 
     builder = gtk_builder_new_from_resource("/UI/UI.glade");
 

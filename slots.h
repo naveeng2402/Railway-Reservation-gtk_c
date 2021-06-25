@@ -19,6 +19,10 @@ void quit(AtkWindow *win, gpointer data)
     printf("Joined Thread 4\n");
     pthread_join(d->view_tic.bk_tic_thread, NULL);
     printf("Joined Thread 5\n");
+    pthread_join(d->tic_dets.create_html_thread,NULL);
+    printf("Joined Thread 6\n");
+    pthread_join(d->download_tic.check_num_thread,NULL);
+    printf("Joined Thread 7\n");
     gtk_main_quit();
 }
 
@@ -388,6 +392,10 @@ void choose_seat_continue_clicked(GtkButton* btn,gpointer data)
         // Fill the stack in enter details scr
         fill_det_stack(&(d->enter_details));
 
+        gtk_entry_set_text(GTK_ENTRY(d->enter_details.contact_name),"");
+        gtk_entry_set_text(GTK_ENTRY(d->enter_details.contact_number),"");
+        gtk_entry_set_text(GTK_ENTRY(d->enter_details.contact_mail),"");
+
         gtk_stack_set_visible_child(GTK_STACK(d->stack),d->enter_details.scr);
     }
 }
@@ -436,7 +444,7 @@ void enter_details_continue_clicked(GtkButton* btn,gpointer data)
         gtk_container_foreach(GTK_CONTAINER(d->check_details.check_pass_dets),rem_container_wgts,d->check_details.check_pass_dets);
 
         // Fill the stack
-        fill_check_scr_lst_box(d,0);
+        fill_check_scr_lst_box(d);
         
         gtk_stack_set_visible_child(GTK_STACK(d->stack),d->check_details.scr);
     }
@@ -444,25 +452,20 @@ void enter_details_continue_clicked(GtkButton* btn,gpointer data)
 
 void check_details_continue_clicked(GtkButton* btn, gpointer data)
 {
+    /* Moves from check details to view ticket */ 
     DATA *d = data;
 
     /* Changing to load screen */
     gtk_label_set_markup(GTK_LABEL(d->load.title),"<b><span size=\"30000\">Booking your ticket\n\n</span></b>");
     gtk_stack_set_visible_child(GTK_STACK(d->stack),d->load.scr);
 
-    /* Changing to view ticket */
-        // Filling the contact details
-    gtk_label_set_text(GTK_LABEL( d->view_tic.view_contact_name_lbl), gtk_entry_get_text(GTK_ENTRY(d->enter_details.contact_name)));
-    gtk_label_set_text(GTK_LABEL( d->view_tic.view_contact_m_no_lbl), gtk_entry_get_text(GTK_ENTRY(d->enter_details.contact_number)));
-    gtk_label_set_text(GTK_LABEL( d->view_tic.view_contact_email_lbl), gtk_entry_get_text(GTK_ENTRY(d->enter_details.contact_mail)));
-
-    // Remove all the widgets from the lat_box if existed
-    gtk_container_foreach(GTK_CONTAINER(d->check_details.check_pass_dets),rem_container_wgts,d->check_details.check_pass_dets);
-
     pthread_create(&(d->view_tic.bk_tic_thread),NULL,book_ticket,d);
 
-    // Fill the stack
-    fill_check_scr_lst_box(d,1);
+    // set web uri
+    char* file = malloc(1), *cwd = malloc(1);
+    getcwd(cwd,-1);
+    file = g_strdup_printf("file://%s/rsc/temp.html",cwd);
+    webkit_web_view_load_uri(WEBKIT_WEB_VIEW(d->view_tic.web_view), file);
 }
 
 void view_ticket_ok(GtkButton* btn,gpointer data)
@@ -471,5 +474,53 @@ void view_ticket_ok(GtkButton* btn,gpointer data)
     gtk_stack_set_visible_child(GTK_STACK(d->stack),d->welcome.scr);
 }
 
+void download_scr_get_tic_btn_clicked(GtkButton* btn,gpointer data)
+{
+    DATA *d = data;
+    d->tic_dets.tic_no = atoi(gtk_entry_get_text(GTK_ENTRY(d->download_tic.tic_num)));
+    d->download_tic.num = gtk_entry_get_text(GTK_ENTRY(d->download_tic.m_num));
+
+    // Change to load scr
+    gtk_label_set_markup(GTK_LABEL(d->load.title),"<b><span size=\"30000\">Getting Your Ticket\n\n</span></b>");
+    // gtk_stack_set_visible_child(GTK_STACK(d->stack), d->load.scr);
+    pthread_create(&(d->download_tic.check_num_thread), NULL, check_num, data);
+
+    // pthread_create(&(d->tic_dets.create_html_thread), NULL, create_html, data);
+}
+
+
+void save_tic(GtkButton* btn,gpointer data)
+{
+    DATA* d = data;
+    char *filename;
+
+    GtkWidget *dig = gtk_file_chooser_dialog_new("SAVE TICKET",GTK_WINDOW(d->win),GTK_FILE_CHOOSER_ACTION_SAVE,"Cancel",
+                                      GTK_RESPONSE_CANCEL,
+                                      "SAVE",
+                                      GTK_RESPONSE_ACCEPT,NULL);
+    int res = gtk_dialog_run(GTK_DIALOG(dig));
+
+    if (res == GTK_RESPONSE_ACCEPT)
+    {
+        GtkFileChooser *chooser = GTK_FILE_CHOOSER(dig);
+        filename = gtk_file_chooser_get_uri(chooser);
+        printf("%s\n",filename);
+    }
+    gtk_widget_destroy(dig);
+
+    // copy file
+    #ifdef _WIN32
+        asdf
+    #else
+        system(g_strdup_printf("cp rsc/temp.html %s", &(filename[7])));
+    #endif
+}
+
+void download_tic(GtkButton* btn,gpointer data)
+{
+    DATA *d = data;
+    gtk_stack_set_transition_type(GTK_STACK(d->stack),GTK_STACK_TRANSITION_TYPE_SLIDE_LEFT_RIGHT);
+    gtk_stack_set_visible_child(GTK_STACK(d->stack),d->download_tic.scr);   
+}
 
 #endif

@@ -273,7 +273,7 @@ JOIN Train_Dates AS t_dt ON t.id=t_dt.train_id JOIN DATES AS dt ON dt.id=t_dt.da
 JOIN Train_Name AS t_n ON t.id=t_n.train_id JOIN NAME AS n ON n.id=t_n.name_id /*joining train name*/
 JOIN Train_Dest AS t_des ON t.id=t_des.train_id JOIN DEST AS des ON des.id=t_des.dest_id /*joining train destination*/
 JOIN Train_Time AS t_ti ON t.id=t_ti.train_id JOIN TIMES AS ti ON ti.id=t_ti.time_id /*joining train time*/
-JOIN DATES_BK AS tmp ON tmp.id = tic.date_of_bk
+JOIN DATES AS tmp ON tmp.id = tic.date_of_bk
 WHERE {Conditions}
 
 
@@ -289,17 +289,10 @@ JOIN Train_Dates AS t_dt ON t.id=t_dt.train_id JOIN DATES AS dt ON dt.id=t_dt.da
 JOIN Train_Name AS t_n ON t.id=t_n.train_id JOIN NAME AS n ON n.id=t_n.name_id /*joining train name*/
 JOIN Train_Dest AS t_des ON t.id=t_des.train_id JOIN DEST AS des ON des.id=t_des.dest_id /*joining train destination*/
 JOIN Train_Time AS t_ti ON t.id=t_ti.train_id JOIN TIMES AS ti ON ti.id=t_ti.time_id /*joining train time*/
-JOIN DATES_BK AS tmp ON tmp.id = tic.date_of_bk
+JOIN DATES AS tmp ON tmp.id = tic.date_of_bk
 WHERE tic.ticket_number=1002
 ```
-***`Note:`***
-- ### While selecting the complete model a copy of `DATES` named `DATES_BK` is created and is droped after the selection
-1. ```sql
-    CREATE TABLE IF NOT EXISTS DATES_BK AS SELECT * FROM DATES;
-    ```
-2. ```sql
-    DROP TABLE DATES_BK
-    ```
+
 - ### Use `DISTINCT` keywoed immediately after `SELECT` to remove duplicates in the view
 - ```sql
     SELECT DISTINCT {Columns} FROM {TABLES}

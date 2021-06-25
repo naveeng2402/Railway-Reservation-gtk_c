@@ -72,25 +72,18 @@ void get_widgets(GtkBuilder* b, DATA* d)
     d->check_details.contact_m_no_lbl = GTK_WIDGET(gtk_builder_get_object(b,"check_details_scr_m_no_lbl"));
     d->check_details.contact_email_lbl = GTK_WIDGET(gtk_builder_get_object(b,"check_details_scr_email_lbl"));
 
-    // Widgets fot view ticket
+    // Widgets for view ticket
     d->view_tic.scr = GTK_WIDGET(gtk_builder_get_object(b,"view_ticket_scr"));
-    d->view_tic.details_box = GTK_WIDGET(gtk_builder_get_object(b,"view_details_box"));
     d->view_tic.ok = GTK_WIDGET(gtk_builder_get_object(b,"view_ticket_scr_ok_btn"));
     d->view_tic.download = GTK_WIDGET(gtk_builder_get_object(b,"view_ticket_scr_dwnld_btn"));
-    d->view_tic.tic_num_lbl = GTK_WIDGET(gtk_builder_get_object(b,"ticket_num"));
-    d->view_tic.pass_no_lbl = GTK_WIDGET(gtk_builder_get_object(b,"no_of_pass"));
-    d->view_tic.date_of_bk_lbl = GTK_WIDGET(gtk_builder_get_object(b,"dt_of_booking"));
-    d->view_tic.time_of_bk_lbl = GTK_WIDGET(gtk_builder_get_object(b,"time_of_booking"));
-    d->view_tic.train_num_lbl = GTK_WIDGET(gtk_builder_get_object(b,"train_num"));
-    d->view_tic.train_name_lbl = GTK_WIDGET(gtk_builder_get_object(b,"train_name"));
-    d->view_tic.date_of_dep_lbl = GTK_WIDGET(gtk_builder_get_object(b,"dep_dt"));
-    d->view_tic.time_of_dept_lbl = GTK_WIDGET(gtk_builder_get_object(b,"dep_time"));
-    d->view_tic.to_lbl = GTK_WIDGET(gtk_builder_get_object(b,"to"));
+    d->view_tic.web_view = GTK_WIDGET(gtk_builder_get_object(b,"web_view"));
 
-    d->view_tic.view_contact_name_lbl = GTK_WIDGET(gtk_builder_get_object(b,"view_check_details_scr_contact_name_lbl"));
-    d->view_tic.view_contact_m_no_lbl = GTK_WIDGET(gtk_builder_get_object(b,"view_check_details_scr_m_no_lbl"));
-    d->view_tic.view_contact_email_lbl = GTK_WIDGET(gtk_builder_get_object(b,"view_check_details_scr_email_lbl"));
-    d->view_tic.view_lst_box = GTK_WIDGET(gtk_builder_get_object(b,"view_check_details_passengers_lst_box"));
+    // Widgets for download tic
+    d->download_tic.scr = GTK_WIDGET(gtk_builder_get_object(b,"download_tic"));
+    d->download_tic.back = GTK_WIDGET(gtk_builder_get_object(b,"download_scr_back_btn"));
+    d->download_tic.get_tic = GTK_WIDGET(gtk_builder_get_object(b,"download_scr_get_tic_btn"));
+    d->download_tic.tic_num = GTK_WIDGET(gtk_builder_get_object(b,"download_scr_tic_num"));
+    d->download_tic.m_num = GTK_WIDGET(gtk_builder_get_object(b,"download_scr_m_no"));
 
 }
 
@@ -153,6 +146,9 @@ void get_imgs(GtkBuilder* b,GHashTable* tbl)
     // For view details
     populate_tbl(b,tbl,"view_ticket_scr_dwnld_scrl","view_ticket_scr_dwnld_ico","continue");
     populate_tbl(b,tbl,"view_ticket_scr_ok_scrl","view_ticket_scr_ok_ico","continue");
+
+    // For Download Ticket 
+    populate_tbl(b,tbl,"download_ticket_scr_back_scrl","download_ticket_scr_back_ico","back");
 
 }
 
@@ -317,7 +313,7 @@ void fill_det_stack(W_enter_details *data)
 }
 
 /* Fills the lst_box inside check details scr and view ticket scr */
-void fill_check_scr_lst_box(DATA *data, int flag)
+void fill_check_scr_lst_box(DATA *data)
 {
     DATA *d = data;
     GtkLabel *seat_no, *name, *age, *gender; /* Lables that are inside the row */
@@ -326,10 +322,7 @@ void fill_check_scr_lst_box(DATA *data, int flag)
     int size = 15000;
 
     // Remove all the data from the list_box if existed
-    if (flag == 0)
-        gtk_container_foreach(GTK_CONTAINER(d->check_details.check_pass_dets),rem_container_wgts,d->check_details.check_pass_dets);
-    else if (flag == 1)
-        gtk_container_foreach(GTK_CONTAINER(d->view_tic.view_lst_box),rem_container_wgts,d->view_tic.view_lst_box);
+    gtk_container_foreach(GTK_CONTAINER(d->check_details.check_pass_dets),rem_container_wgts,d->check_details.check_pass_dets);
 
         /* Getting the header */
     // seat number
@@ -369,10 +362,7 @@ void fill_check_scr_lst_box(DATA *data, int flag)
 
     // Adding wids to the parents
     gtk_container_add(GTK_CONTAINER(row),box);
-    if (flag == 0)
-        gtk_list_box_insert(GTK_LIST_BOX(d->check_details.check_pass_dets),row,-1);
-    else if (flag==1)
-        gtk_list_box_insert(GTK_LIST_BOX(d->view_tic.view_lst_box),row,-1);
+    gtk_list_box_insert(GTK_LIST_BOX(d->check_details.check_pass_dets),row,-1);
 
     for (int i = 0; i < d->enter_details.no_of_pass; i++)
     {
@@ -421,17 +411,11 @@ void fill_check_scr_lst_box(DATA *data, int flag)
 
         // Adding wids to the parents
         gtk_container_add(GTK_CONTAINER(row),box);
-        if (flag == 0)
-            gtk_list_box_insert(GTK_LIST_BOX(d->check_details.check_pass_dets),row,-1);
-        else if(flag == 1)
-            gtk_list_box_insert(GTK_LIST_BOX(d->view_tic.view_lst_box),row,-1);
+        gtk_list_box_insert(GTK_LIST_BOX(d->check_details.check_pass_dets),row,-1);
 
     }
 
-    if (flag==0)
-        gtk_widget_show_all(d->check_details.check_pass_dets);
-    else if (flag == 1)
-        gtk_widget_show_all(d->view_tic.view_lst_box);
+    gtk_widget_show_all(d->check_details.check_pass_dets);
 }
 
 /* Get the data from GList */
@@ -841,6 +825,171 @@ void* get_seats_data(void* arg)
 
 }
 
+void* create_html(void* arg)
+{
+    DATA *d = arg;
+    sqlite3* db;
+    char* sql;
+
+    /********* GETTING DATA ***********/
+    sqlite3_open("rsc/data", &db);
+
+    // Gettig all the details
+    sql = g_strdup_printf(
+            "SELECT tic.no_of_passengers, tmp.dates_val, tic.time_of_bk, des.price*tic.no_of_passengers, t.id, n.train_names, des.destination, dt.dates_val, ti.time, tic.contact_name, tic.mobile_no, tic.email_id \
+            FROM TICKET AS tic JOIN TRAIN AS t ON t.id   = tic.ticket_train_id \
+            JOIN Train_Dates AS t_dt ON t.id=t_dt.train_id JOIN DATES AS dt ON dt.id=t_dt.dates_id \
+            JOIN Train_Name AS t_n ON t.id=t_n.train_id JOIN NAME AS n ON n.id=t_n.name_id \
+            JOIN Train_Dest AS t_des ON t.id=t_des.train_id JOIN DEST AS des ON des.id=t_des.dest_id \
+            JOIN Train_Time AS t_ti ON t.id=t_ti.train_id JOIN TIMES AS ti ON ti.id=t_ti.time_id \
+            JOIN DATES AS tmp ON tmp.id = tic.date_of_bk \
+            WHERE tic.ticket_number=%d",
+            d->tic_dets.tic_no);
+    sqlite3_exec(db, sql,callback_get_ticket_details, &(d->tic_dets), NULL);
+
+    // Getting passenger details
+    d->tic_dets.passenger_details = calloc(atoi(d->tic_dets.details[PASS_NO]),sizeof(char**));
+    sql = g_strdup_printf(
+            "SELECT s.seat_no, p.passenger_name, p.age, g.gender, c.class \
+            FROM PASSENGERS as p JOIN static_GENDER as g ON p.gender_id=g.id \
+            JOIN SEAT as s ON s.id=p.passenger_seat \
+            JOIN static_SEAT_CLASS as c ON c.id=s.class_id \
+            WHERE p.ticket_id=%d",
+            d->tic_dets.tic_no);
+    d->tic_dets.count = 0;
+    sqlite3_exec(db,sql,callback_get_passenger_details, &(d->tic_dets), NULL);
+    sqlite3_close(db);
+    for (int i = 0; i < atoi(d->tic_dets.details[PASS_NO]); i++)
+    {
+        for (int j = 0; j < PASS_DET_NOS; j++)
+        {
+            printf("%s\t",d->tic_dets.passenger_details[i][j]);
+        }
+        printf("\n");
+    }
+
+    /*************** GENERATE HTML *********************/
+    char *html_header = malloc(1), *temp = malloc(1);
+    int ind;
+
+    html_header = "<html> \
+            <head> \
+                <style> \
+                    table, th, td {border: 0.75mm solid black;} \
+                </style> \
+            </head> \
+            <body style=\"width: 210mm; height:297mm; margin-left: auto;margin-right: auto;\"> \
+                <div id = \"content\" style=\"margin: 1cm; margin-top: 0.7cm; border: 0.25cm solid black; height: 277mm;\"> \
+                    <br> \
+                    <h1 style=\"text-align: center;\"><strong>UTOPIAN RAILWAYS</strong></h1> \
+                    <h3 style=\"text-align: center;\"><span style=\"text-decoration: underline;\"><strong>Ticket Details</strong></span></h3> \
+                    <table style=\"width: 85%; border-collapse: collapse;margin-left: auto; margin-right: auto;\"> \
+                        <tbody> \
+                            <tr> \
+                                <th>Ticket Number</th> \
+                                <th>Number of Passengers</th> \
+                                <th>Date of Booking</th> \
+                                <th>Time of Booking</th> \
+                                <th>Price</th> \
+                            </tr> \
+                            <tr>\n";
+    html_header = g_strdup_printf("%s <td style=\"width: 20%%; text-align: center;\">%d</td>",html_header, d->tic_dets.tic_no);
+    for (int i = 0; i < 4; i++)
+    {
+        html_header = g_strdup_printf("%s <td style=\"width: 20%%; text-align: center;\">%s</td>",html_header, d->tic_dets.details[i]);
+    }
+
+    temp = "</tbody></table> \
+        <h3 style=\"text-align: center;\"><span style=\"text-decoration: underline;\"><strong>Train Details</strong></span></h3> \
+        <table style=\"width: 85%; border-collapse: collapse;margin-left: auto; margin-right: auto;\"> \
+            <tbody> \
+                <tr> \
+                    <th>Train Number</th> \
+                    <th>Train Name</th> \
+                    <th>From</th> \
+                    <th>To</th> \
+                    <th>Date of Departure</th> \
+                    <th>Time of Departure</th> \
+                </tr> \
+                <tr>";
+
+    html_header = g_strdup_printf("%s %s",html_header,temp);
+
+    for (int i = 4; i <=9; i++)
+    {   
+        if (i==6)
+        {
+            html_header = g_strdup_printf("%s <td style=\"width: 16.66%%; text-align: center;\">Chennai Central</td>",html_header);
+            continue;
+        }
+        
+        ind = (i>6)?(i==7?6:i-1):i;
+
+        html_header = g_strdup_printf("%s <td style=\"width: 16.66%%; text-align: center;\">%s</td>",html_header, d->tic_dets.details[ind]);
+    }
+
+    temp = "</tr> \
+            </tbody> \
+        </table> \
+        <h3 style=\"text-align: center;\"><span style=\"text-decoration: underline;\"><strong>Contact Details</strong></span></h3> \
+        <table style=\"width: 85%; border-collapse: collapse;margin-left: auto; margin-right: auto;\"> \
+            <tbody> \
+                <tr> \
+                    <th>Contact Name</th> \
+                    <th>Mobile Number</th> \
+                    <th>Email Id</th> \
+                </tr> \
+                <tr> ";
+    
+    html_header = g_strdup_printf("%s %s",html_header, temp);
+
+    for (int i = 9; i < 12; i++)
+    {
+        html_header = g_strdup_printf("%s <td style=\"width: 33.33%%; text-align: center;\">%s</td>",html_header, d->tic_dets.details[i]);   
+    }
+
+    temp = "</tr> \
+            </tbody> \
+        </table> \
+        <h3 style=\"text-align: center;\"><span style=\"text-decoration: underline;\"><strong>Passenger Details</strong></span></h3> \
+        <table style=\"width: 85%; border-collapse: collapse;margin-left: auto; margin-right: auto;\"> \
+            <tbody> \
+                <tr> \
+                    <th>Seat Number</th> \
+                    <th>Name</th> \
+                    <th>Age</th> \
+                    <th>Gender</th> \
+                    <th>Class</th> \
+                </tr>";
+    html_header = g_strdup_printf("%s %s",html_header, temp);
+    
+    for (int i = 0; i < atoi(d->tic_dets.details[PASS_NO]); i++)
+    {
+        html_header = g_strdup_printf("%s <tr>\n", html_header);
+        for (int j = 0; j < PASS_DET_NOS; j++)
+        {
+            html_header = g_strdup_printf("%s <td style=\"width: 20%%; text-align: center;\">%s</td>",html_header, d->tic_dets.passenger_details[i][j]);
+        }
+        html_header = g_strdup_printf("%s </tr>\n", html_header);
+    }
+    
+    temp = "</tbody> \
+            </table> \
+            <br> \
+            </div> \
+            </body> \
+            </html>";
+
+    html_header = g_strdup_printf("%s %s",html_header, temp);
+
+    // Write to a file
+    FILE *f = fopen("rsc/temp.html", "w");
+    fprintf(f, "%s", html_header);
+    fclose(f);
+
+    return 0;
+}
+
 void* book_ticket(void* arg)
 {
     DATA* data = arg;
@@ -901,23 +1050,34 @@ void* book_ticket(void* arg)
         sql = g_strdup_printf("INSERT INTO PASSENGERS (\"passenger_name\",\"age\",\"gender_id\",\"passenger_seat\",\"ticket_id\") VALUES (\"%s\",\"%s\",%d,%d,%d)",name,age,gender_id,seat_id,tic_id);
         sqlite3_exec(db,sql,NULL,NULL,NULL);
     }
-    
-    gtk_label_set_text(GTK_LABEL(data->view_tic.tic_num_lbl), g_strdup_printf("%d",tic_id));
-    gtk_label_set_text(GTK_LABEL(data->view_tic.pass_no_lbl), g_strdup_printf("%d",data->enter_details.no_of_pass));
-    gtk_label_set_text(GTK_LABEL(data->view_tic.date_of_bk_lbl), todate);
-    gtk_label_set_text(GTK_LABEL(data->view_tic.time_of_bk_lbl), bk_time);
-
-    gtk_label_set_text(GTK_LABEL(data->view_tic.train_num_lbl), train_id);
-    gtk_label_set_text(GTK_LABEL(data->view_tic.train_name_lbl), data->choose_seats.train_data[TRAIN_DET_NAME]);
-    gtk_label_set_text(GTK_LABEL(data->view_tic.date_of_dep_lbl), data->choose_train.selected_date);
-    gtk_label_set_text(GTK_LABEL(data->view_tic.time_of_dept_lbl), data->choose_seats.train_data[TRAIN_DET_TIME]);
-    gtk_label_set_text(GTK_LABEL(data->view_tic.to_lbl), data->choose_train.selected_dest);
-
-
-
     sqlite3_close(db);
-    SLEEP(1);
+
+    data->tic_dets.tic_no = tic_id;
+    pthread_create(&(data->tic_dets.create_html_thread), NULL, create_html, data);
+
+    SLEEP(2);
     gtk_stack_set_visible_child(GTK_STACK(data->stack),data->view_tic.scr);
+    return 0;
+}
+
+void* check_num(void* arg)
+{
+    DATA* data = arg;
+    char* sql = "", **number=calloc(2,sizeof(char*));
+    sqlite3* db;
+
+    sqlite3_open("rsc/data", &db);
+
+    sql = g_strdup_printf("SELECT mobile_no FROM TICKET WHERE ticket_number=%d",data->tic_dets.tic_no);
+    sqlite3_exec(db,sql,callback_get_m_no,number, NULL);
+
+    printf("%s\n", number[1]);
+    if (strcmp(number[1],"")==0 || number[1] != data->download_tic.num)
+    {
+        printf("FALSE\n");
+    }
+    
+
     return 0;
 }
 
