@@ -43,6 +43,7 @@ int callback_get_avail_seats(void *, int, char **, char **);
 int callback_get_seat_data(void *, int, char **, char **);
 int callback_get_ticket_details(void *, int, char **, char **);
 int callback_get_passenger_details(void *, int, char **, char **);
+int callback_get_m_no(void *, int, char **, char **);
 
 void rem_container_wgts(GtkWidget*, gpointer);
 void get_seat_nums(gpointer, gpointer);
@@ -77,6 +78,7 @@ void* get_list_content(void*);
 void* get_seats_data(void*);
 void* book_ticket(void*);
 void* create_html(void*);
+void* check_num(void*);
 
 int main(int argc, char *argv[])
 {

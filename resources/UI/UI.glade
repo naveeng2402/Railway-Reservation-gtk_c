@@ -3274,8 +3274,8 @@ TITLE LABEL&lt;/span&gt;&lt;/b&gt;</property>
                         <property name="receives_default">True</property>
                         <signal name="clicked" handler="back_to_welcome" swapped="no"/>
                         <child>
-                          <object class="GtkScrolledWindow" id="check_details_scr_back_scrl1">
-                            <property name="name">check_details_scr_back</property>
+                          <object class="GtkScrolledWindow" id="download_ticket_scr_back_scrl">
+                            <property name="name">download_ticket_scr_back</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="min_content_width">1</property>
@@ -3286,8 +3286,8 @@ TITLE LABEL&lt;/span&gt;&lt;/b&gt;</property>
                                 <property name="can_focus">False</property>
                                 <property name="shadow_type">none</property>
                                 <child>
-                                  <object class="GtkImage" id="check_details_scr_back_ico1">
-                                    <property name="name">check_details_scr_back</property>
+                                  <object class="GtkImage" id="download_ticket_scr_back_ico">
+                                    <property name="name">download_ticket_scr_back</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                   </object>

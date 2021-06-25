@@ -147,6 +147,9 @@ void get_imgs(GtkBuilder* b,GHashTable* tbl)
     populate_tbl(b,tbl,"view_ticket_scr_dwnld_scrl","view_ticket_scr_dwnld_ico","continue");
     populate_tbl(b,tbl,"view_ticket_scr_ok_scrl","view_ticket_scr_ok_ico","continue");
 
+    // For Download Ticket 
+    populate_tbl(b,tbl,"download_ticket_scr_back_scrl","download_ticket_scr_back_ico","back");
+
 }
 
 /* Fill the flowboxes in the choose seat */
@@ -1054,6 +1057,27 @@ void* book_ticket(void* arg)
 
     SLEEP(2);
     gtk_stack_set_visible_child(GTK_STACK(data->stack),data->view_tic.scr);
+    return 0;
+}
+
+void* check_num(void* arg)
+{
+    DATA* data = arg;
+    char* sql = "", **number=calloc(2,sizeof(char*));
+    sqlite3* db;
+
+    sqlite3_open("rsc/data", &db);
+
+    sql = g_strdup_printf("SELECT mobile_no FROM TICKET WHERE ticket_number=%d",data->tic_dets.tic_no);
+    sqlite3_exec(db,sql,callback_get_m_no,number, NULL);
+
+    printf("%s\n", number[1]);
+    if (strcmp(number[1],"")==0 || number[1] != data->download_tic.num)
+    {
+        printf("FALSE\n");
+    }
+    
+
     return 0;
 }
 

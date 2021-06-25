@@ -104,6 +104,10 @@ typedef struct _download_tic
     GtkWidget *tic_num, *m_num;
     GtkWidget *back, *get_tic;
 
+    char* num;
+    int is_empty;
+    pthread_t check_num_thread;
+
 }W_download_tic;
 
 /*******************************************************************************************

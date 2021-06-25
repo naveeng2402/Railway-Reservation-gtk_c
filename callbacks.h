@@ -118,6 +118,13 @@ int callback_get_passenger_details(void *data, int argc, char **argv, char **azC
     return 0;
 }
 
+int callback_get_m_no(void *data, int argc, char **argv, char **azColName)
+{
+    char** m_no = data;
+    m_no[1] = calloc(strlen(argv[0]),sizeof(char));
+    strcpy(m_no[1],argv[0]);
+    return 0;
+}
 
 void rem_container_wgts(GtkWidget *w, gpointer data)
 {

@@ -21,6 +21,8 @@ void quit(AtkWindow *win, gpointer data)
     printf("Joined Thread 5\n");
     pthread_join(d->tic_dets.create_html_thread,NULL);
     printf("Joined Thread 6\n");
+    pthread_join(d->download_tic.check_num_thread,NULL);
+    printf("Joined Thread 7\n");
     gtk_main_quit();
 }
 
@@ -476,8 +478,14 @@ void download_scr_get_tic_btn_clicked(GtkButton* btn,gpointer data)
 {
     DATA *d = data;
     d->tic_dets.tic_no = atoi(gtk_entry_get_text(GTK_ENTRY(d->download_tic.tic_num)));
-    printf("%d\n",d->tic_dets.tic_no);
-    pthread_create(&(d->tic_dets.create_html_thread), NULL, create_html, data);
+    d->download_tic.num = gtk_entry_get_text(GTK_ENTRY(d->download_tic.m_num));
+
+    // Change to load scr
+    gtk_label_set_markup(GTK_LABEL(d->load.title),"<b><span size=\"30000\">Getting Your Ticket\n\n</span></b>");
+    // gtk_stack_set_visible_child(GTK_STACK(d->stack), d->load.scr);
+    pthread_create(&(d->download_tic.check_num_thread), NULL, check_num, data);
+
+    // pthread_create(&(d->tic_dets.create_html_thread), NULL, create_html, data);
 }
 
 
@@ -501,7 +509,11 @@ void save_tic(GtkButton* btn,gpointer data)
     gtk_widget_destroy(dig);
 
     // copy file
-    system(g_strdup_printf("cp rsc/temp.html %s", &(filename[7])));
+    #ifdef _WIN32
+        asdf
+    #else
+        system(g_strdup_printf("cp rsc/temp.html %s", &(filename[7])));
+    #endif
 }
 
 void download_tic(GtkButton* btn,gpointer data)
