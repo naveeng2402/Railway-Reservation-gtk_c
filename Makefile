@@ -1,6 +1,6 @@
 default:
 	make res
-	gcc -g main.c resources/rsc.c -o bin/app `pkg-config --cflags --libs gtk+-3.0 sqlite3 webkit2gtk-4.0` -export-dynamic -Wall && bin/app
+	gcc -g main.c functions.c slots.c sqlite_funcs.c thread_funcs.c  resources/rsc.c -o bin/app `pkg-config --cflags --libs gtk+-3.0 sqlite3 python3-embed` -export-dynamic -Wall && bin/app
 
 res:
 	cd resources ; glib-compile-resources --target=rsc.c --generate-source rsc_config.xml ; cd ..

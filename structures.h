@@ -1,27 +1,31 @@
 #ifndef STRUCTURES
 #define STRUCTURES
 
-#include <gtk/gtk.h>
+#define true 1
+#define false 0
 
-// Structure Containing widgets of Load_scr
+/***********************************************************************************************
+                                    SCREEN WIDGETS
+ **********************************************************************************************/
+/* Widgets for Load Screen */
 typedef struct _load_scr
 {
-    GtkWidget *scr; // The grid to the screen
+    GtkWidget *scr;
 
-    GtkWidget *title, *load; //lables
+    GtkWidget *title, *load; // Lables
     GtkWidget *progress_bar;
 }W_load_scr;
 
-// Structure Containing widgets of welcome_scr
+/* Widgets for Welcome Screen */
 typedef struct _welcome_scr
 {
-    GtkWidget *scr; // The grid of the screen
+    GtkWidget *scr;
 
     GtkWidget *admin, *info, *bk_tic,
-              *dwnld_tic, *cncl_tic;    // Buttons
+              *dwnld_tic, *cncl_tic; // Buttons
 }W_welcome_scr;
 
-// Structure Containing widgets of choose train
+/* Widgets for ChooseTrain Screen */
 typedef struct _choose_train
 {
     GtkWidget *scr; // Grid of the screen
@@ -31,16 +35,16 @@ typedef struct _choose_train
     GtkWidget *revealer;
     GtkWidget *lst_box;
 
-    pthread_t dest_date_thread, get_trains_thread; // Thread
-    int count, len; // Used in callbacks
+    char* len; // length of available trains
     int is_revealer_visible;
+    int date_dest_len[2];  // Lenght of date and dest
     char *selected_dest, *selected_date;
-    char **dest_val, **date_val, ***lst_box_content; // arrays to store data 
+    char **dest_val, **date_val, ***lst_box_content, **seats_available/* available seats in list box */; // arrays to store data 
     /* ***lst_box_content is a 2d array of string the cols of each arrays are listed in the enum lstbox_content */
 
 }W_choose_train;
 
-// Structure Containing widgets of choose train
+/* Widgets for ChooseSeats Screen */
 typedef struct _choose_seats
 {
     GtkWidget* scr; // Grid of the screen
@@ -49,13 +53,12 @@ typedef struct _choose_seats
     GtkWidget *title; // Label
     GtkWidget *ac, *non_ac, *ac_sleeper, *non_ac_sleeper; // Flowbox
 
-    pthread_t get_seats_thread; // Threads
-    GdkPixbuf **pix; /* Array to store pix_buffs -> avail, booked, window*/
-    int count;
-    char ***seats, **train_data; // arrays
+    GdkPixbuf **pix; /* Array to store pix_buffs -> avail, booked, window, {enum -> seat_class_pixbuf} */
+    char ***seats, **train_details; // arrays
+    /* enums -> seat, train_details */
 }W_choose_seats;
 
-// Structure Containing widgets of enter_details
+/* Widgets for EnterDetails Screen */
 typedef struct _enter_details
 {
     GtkWidget *scr; // Grid of the screen
@@ -64,14 +67,12 @@ typedef struct _enter_details
     GtkWidget *back, *book; // Buttons
     GtkWidget *contact_name, *contact_number, *contact_mail; // Entries
 
-    int count; // used in callbacks
     int no_of_pass; // no of passengers
     char **seat_nos; // a array of selected seat numbers
     GtkWidget **pass_name, **pass_age, **pass_gen; // arrays of passenger detail entries
-
 }W_enter_details;
 
-// Structure Containing widgets of check details
+/* Widgets for CheckDetails Screen */
 typedef struct _check_details
 {
     GtkWidget *scr; // Grid of the screen
@@ -79,11 +80,9 @@ typedef struct _check_details
     GtkWidget *check_pass_dets; // List Box
     GtkWidget *back, *confirm; // Buttons
     GtkWidget *contact_name_lbl, *contact_m_no_lbl, *contact_email_lbl; // Labels
-    
-    int count; // used in callbacks
 }W_check_details;
 
-// Structure Containing widgets of check details
+/* Widgets for ViewTicket Screen */
 typedef struct _view_ticket
 {
     GtkWidget *scr; // Grid to the screen
@@ -93,73 +92,77 @@ typedef struct _view_ticket
     GtkWidget *ok, *download; // Buttons
     GtkWidget *web_view;
 
-    pthread_t bk_tic_thread; // Thread that books ticket
-    int count; // used in callbacks
-
+    char* label_content;
 }W_view_ticket;
 
-typedef struct _download_tic
+/***********************************************************************************************
+                                    SQLITE WIDGETS
+ **********************************************************************************************/
+typedef struct _start_load
 {
-    GtkWidget *scr;
-    GtkWidget *tic_num, *m_num;
-    GtkWidget *back, *get_tic;
-
-    char* num;
-    int is_empty;
-    pthread_t check_num_thread;
-
-}W_download_tic;
-
-/*******************************************************************************************
-                            SQLITE STRUCTURES
- *******************************************************************************************/
-
-typedef struct _default_trains
-{
-    // char **dates;
-    int *is_dates_already_in_db, *dates_id;
-    int *def_id, *name_id, *dest_id, *time_id;
-    int *train_ids, *is_train_full; /* used in update_is_train_full */
-    int train_id; /* Used in add trains for adding seats */
-    int len;
-    int count; /* Count is used to keep track of iteration in callbacks */
-    
+    char **is_dates_already_in_db, **dates_id;
+    char ***default_train_details; /* enum def_train_details */
+    char *train_id; /* Used in add trains for adding seats */
+    char *len;    
 }START_LOAD;
 
-typedef struct _html
+/***********************************************************************************************
+                                    MISC STRUCTURES
+ **********************************************************************************************/
+typedef struct _threads
 {
-    pthread_t create_html_thread;
-    char **details, ***passenger_details;
-    int tic_no, count;
-}HTML;
+    pthread_t start;
+    pthread_t fill_dest_date; /* Welcome scr */
+    pthread_t get_train_lst, get_seat_data; /* choose train scr */
+    pthread_t book_ticket; /* View ticket scr */
+}THREADS;
 
-// Structure Containing all the data
+/* The structure that is passed to sqlite callbacks */
+typedef struct _callback_pram
+{
+    char *str, **arr, ***arr_2d;
+    int count; /* Count is used to keep track of iteration in callbacks */
+}PRAM;
+
+/* Structure containig ticket_details */
+typedef struct _ticket_details
+{
+    char **tic_details, **tic_train_details, **contact_details;
+    char ***passenger_details; 
+    /* enums are defined in the variable names */
+}TICKET_DETAILS;
+
+/***********************************************************************************************
+                                    CONSOLIDATED STRUCTURE
+ **********************************************************************************************/
 typedef struct _data
 {
-    pthread_t start_thread; // Threads
+    THREADS threads;
 
-    GtkWidget *win ; GtkWidget *stack;
-    
+    GtkWidget *win, *stack; // Root Widgets
+
     W_load_scr load;
     W_welcome_scr welcome;
     W_choose_train choose_train;
     W_choose_seats choose_seats;
     W_enter_details enter_details;
     W_check_details check_details;
-    W_view_ticket view_tic;
-    W_download_tic download_tic;
+    W_view_ticket view_ticket;
 
-    HTML tic_dets;
-    
     GHashTable *pixbuffs; // Hash table to store gdkpixbuffs, GtkScrolledWindow and GtkImages  
 }DATA;
 
-enum default_trains
+/***********************************************************************************************
+                                    ENUMERATORS
+ **********************************************************************************************/
+
+enum def_train_details
 {
-    ID,
-    NAME_ID,
-    DEST_ID,
-    TIME_ID
+    DEF_ID,
+    DEF_NAME_ID,
+    DEF_DEST_ID,
+    DEF_TIME_ID,
+    DEF_NCOLS
 };
 
 enum lstbox_content
@@ -167,7 +170,7 @@ enum lstbox_content
     LST_BOX_TRAIN_ID,
     LST_BOX_TIME,
     LST_BOX_NAME,
-    LST_BOX_AVAIL_SEATS
+    LST_BOX_NCOLS
 };
 
 enum train_details
@@ -180,7 +183,14 @@ enum train_details
     TRAIN_DET_DEST
 };
 
-enum seats
+enum seat_class_pixbuf
+{
+    AVAIL_SEAT,
+    BOOKED_SEAT,
+    WIN_SEAT 
+};
+
+enum seat
 {
     SEAT_NO,
     SEAT_CLASS,
@@ -188,21 +198,42 @@ enum seats
     SEAT_IS_WINDOW
 };
 
-enum html
+enum gender
 {
-    PASS_NO,
+    GENDER_ZERO,
+    MALE,
+    FEMALE,
+    TRANSGENDER
+};
+
+enum tic_details
+{
+    TICKET_NUMBER,
+    NO_OF_PASSENGERS,
     BK_DATE,
     BK_TIME,
     PRICE,
-    TRIAN_ID,
+    TIC_DET_NCOLS
+};
+
+enum tic_train_details
+{
+    TRAIN_ID,
     TRAIN_NAME,
-    DESTINATION,
+    /* FROM_STN, */ /* From station should be here when generating report but for iteration purpose it is moved to last index */
+    TO_STN,
     DEP_DATE,
     DEP_TIME,
+    FROM_STN,
+    TIC_TRAIN_NCOLS
+};
+
+enum contact_details
+{
     CONTACT_NAME,
-    CONTACT_NUMBER,
-    CONTACT_EMAIL,
-    HTML_NOS
+    MOBILE_NUM,
+    EMAIL,
+    CONTACT_NCOLS
 };
 
 enum passenger_details
@@ -210,33 +241,9 @@ enum passenger_details
     PASS_SEAT_NO,
     PASS_NAME,
     PASS_AGE,
-    PASS_GENDER,
-    PASS_CLASS,
-    PASS_DET_NOS
-};
-
-enum Pixbuff
-    {
-        AVAIL_SEAT,
-        BOOKED_SEAT,
-        WIN_SEAT 
-    };
-
-enum static_SEAT_CLASS
-{
-    CLASS_ZERO,
-    AC,
-    NON_AC,
-    AC_SLEEPER,
-    NON_AC_SLEEPER
-};
-
-enum static_GENDER
-{
-    GENDER_ZERO,
-    MALE,
-    FEMALE,
-    TRANSGENDER
+    PASS_GEN,
+    PASS_SEAT_CLASS,
+    PASS_NCOLS,
 };
 
 #endif
