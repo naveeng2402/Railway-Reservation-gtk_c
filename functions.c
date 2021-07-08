@@ -250,14 +250,16 @@ void create_report_html(TICKET_DETAILS* details)
     fclose(f);
 }
 
-/* Generates rsc/report.png and rsc/report.pdf from rsc/report.html using python(weasyprint module) */
+/* Generates rsc/report.png and rsc/report.pdf from rsc/report.html using wkhtmltopdf */
 void generate_reports()
 {   
-    GBytes *data = g_resources_lookup_data("/scripts/reports.py",0,NULL);
-    const char* py = g_bytes_get_data(data,NULL);
-    Py_Initialize();
-    PyRun_SimpleString(py);
-    Py_Finalize();
+    #ifdef _WIN32
+        system(".\\rsc\\bins\\wkhtmltopdf rsc\\report.html rsc\\report.pdf");
+        system(".\\rsc\\bins\\wkhtmltoimage rsc\\report.html rsc\\report.png");
+    #else
+        system("rsc/bins/wkhtmltopdf rsc/report.html rsc/report.pdf");
+        system("rsc/bins/wkhtmltoimage rsc/report.html rsc/report.png");
+    #endif
 }
 
 /************************************************************************************************************

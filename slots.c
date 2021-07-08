@@ -22,6 +22,9 @@ void quit(AtkWindow* win, gpointer arg)
     pthread_join(app->threads.get_seat_data, NULL);
     printf("Joined Thread 4\n");
 
+    /* Removing all the reports */
+    remove("rsc/report.html"); remove("rsc/report.pdf"); remove("rsc/report.png");
+
     gtk_main_quit();
 }
 

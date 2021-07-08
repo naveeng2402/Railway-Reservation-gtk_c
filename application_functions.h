@@ -8,7 +8,6 @@
 #include <time.h>
 #include <string.h>
 #include <pthread.h>
-#include <Python.h>
 #include <stdio.h>
 
 #ifdef _WIN32
@@ -66,11 +65,13 @@ G_MODULE_EXPORT void check_details_continue_clicked(GtkButton*, gpointer);
 
                 // View Details
 G_MODULE_EXPORT void save_tic(GtkButton*, gpointer);
+G_MODULE_EXPORT void view_ticket_ok(GtkButton*, gpointer);
 
                 // Back btns
 G_MODULE_EXPORT void back_to_welcome(GtkButton*,gpointer);
 G_MODULE_EXPORT void back_to_choose_train(GtkButton*,gpointer);
 G_MODULE_EXPORT void back_to_choose_seat(GtkButton*,gpointer);
+G_MODULE_EXPORT void back_to_enter_details(GtkButton*,gpointer);
 
 /* Sqlite Functions */
 void add_dates(sqlite3*, START_LOAD*);
