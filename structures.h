@@ -95,6 +95,19 @@ typedef struct _view_ticket
     char* label_content;
 }W_view_ticket;
 
+/* Widgets for DownloadTicket Screen */
+typedef struct _dwnld_tic
+{
+    GtkWidget *scr; // Box to the screen
+
+    GtkWidget *tic_num, *mobile_num; // Entries
+    GtkWidget *back, *get_tic; // Buttonds
+
+    GtkWidget *revealer; 
+    GtkWidget *tic_img, *dwnld; // GtkRevealer children
+
+}W_dwnld_tic;
+
 /***********************************************************************************************
                                     SQLITE WIDGETS
  **********************************************************************************************/
@@ -115,6 +128,7 @@ typedef struct _threads
     pthread_t fill_dest_date; /* Welcome scr */
     pthread_t get_train_lst, get_seat_data; /* choose train scr */
     pthread_t book_ticket; /* View ticket scr */
+    pthread_t get_tic; /* Download ticket */
 }THREADS;
 
 /* The structure that is passed to sqlite callbacks */
@@ -148,6 +162,7 @@ typedef struct _data
     W_enter_details enter_details;
     W_check_details check_details;
     W_view_ticket view_ticket;
+    W_dwnld_tic dwnld_tic;
 
     GHashTable *pixbuffs; // Hash table to store gdkpixbuffs, GtkScrolledWindow and GtkImages  
 }DATA;
@@ -245,5 +260,12 @@ enum passenger_details
     PASS_SEAT_CLASS,
     PASS_NCOLS,
 };
+
+enum get_tic_db
+{
+    INVALID_TICKET_NO,
+    INVALID_MOBILE_NO,
+    VALID_DATA,
+}
 
 #endif

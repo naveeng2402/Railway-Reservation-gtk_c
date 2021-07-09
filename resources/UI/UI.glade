@@ -817,6 +817,7 @@ TITLE LABEL&lt;/span&gt;&lt;/b&gt;</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
                         <property name="always_show_image">True</property>
+                        <signal name="clicked" handler="dwnld_scr_tic" swapped="no"/>
                         <child>
                           <object class="GtkGrid">
                             <property name="visible">True</property>
@@ -906,6 +907,8 @@ TITLE LABEL&lt;/span&gt;&lt;/b&gt;</property>
                             </child>
                           </object>
                         </child>
+                        <accelerator key="2" signal="clicked"/>
+                        <accelerator key="KP_2" signal="clicked"/>
                         <style>
                           <class name="welcome_scr"/>
                         </style>
@@ -1200,7 +1203,7 @@ TITLE LABEL&lt;/span&gt;&lt;/b&gt;</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <signal name="clicked" handler="back_to_welcome" swapped="no"/>
+                        <signal name="clicked" handler="back_to_welcome_bk_tic" swapped="no"/>
                         <child>
                           <object class="GtkScrolledWindow" id="choose_train_scr_back_scrl">
                             <property name="name">choose_train_scr_back</property>
@@ -3269,7 +3272,7 @@ TITLE LABEL&lt;/span&gt;&lt;/b&gt;</property>
           </packing>
         </child>
         <child>
-          <object class="GtkBox" id="download_tic">
+          <object class="GtkBox" id="download_tic_scr">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="margin_left">20</property>
@@ -3295,6 +3298,7 @@ TITLE LABEL&lt;/span&gt;&lt;/b&gt;</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
+                        <signal name="clicked" handler="back_to_welcome_dwnld_scr" swapped="no"/>
                         <child>
                           <object class="GtkScrolledWindow" id="download_ticket_scr_back_scrl">
                             <property name="name">download_ticket_scr_back</property>
@@ -3302,6 +3306,7 @@ TITLE LABEL&lt;/span&gt;&lt;/b&gt;</property>
                             <property name="can_focus">True</property>
                             <property name="min_content_width">1</property>
                             <property name="min_content_height">1</property>
+                            <signal name="size-allocate" handler="size_allocate" swapped="no"/>
                             <child>
                               <object class="GtkViewport">
                                 <property name="visible">True</property>
@@ -3418,7 +3423,7 @@ TITLE LABEL&lt;/span&gt;&lt;/b&gt;</property>
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkButton" id="get_tic">
+                          <object class="GtkButton" id="get_tic_btn">
                             <property name="label" translatable="yes">Get Ticket</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
@@ -3482,7 +3487,7 @@ TITLE LABEL&lt;/span&gt;&lt;/b&gt;</property>
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkButton" id="view_ticket_scr_dwnld_btn1">
+                          <object class="GtkButton" id="download_tic_scr_dwnld_btn">
                             <property name="name">view_ticket_scr_dwnld_btn</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
@@ -3518,7 +3523,7 @@ TITLE LABEL&lt;/span&gt;&lt;/b&gt;</property>
                                     <property name="label_xalign">0</property>
                                     <property name="shadow_type">none</property>
                                     <child>
-                                      <object class="GtkScrolledWindow" id="view_ticket_scr_dwnld_scrl1">
+                                      <object class="GtkScrolledWindow" id="download_tic_scr_dwnld_scrl">
                                         <property name="name">view_ticket_scr_dwnld</property>
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
@@ -3530,7 +3535,7 @@ TITLE LABEL&lt;/span&gt;&lt;/b&gt;</property>
                                             <property name="can_focus">False</property>
                                             <property name="shadow_type">none</property>
                                             <child>
-                                              <object class="GtkImage" id="view_ticket_scr_dwnld_ico1">
+                                              <object class="GtkImage" id="download_tic_scr_dwnld_ico">
                                                 <property name="name">view_ticket_scr_dwnld</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">False</property>
