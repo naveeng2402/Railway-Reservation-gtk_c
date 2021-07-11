@@ -35,8 +35,8 @@
                 <property name="receives_default">True</property>
                 <property name="use_stock">True</property>
                 <property name="always_show_image">True</property>
-                <accelerator key="Return" signal="activate"/>
                 <accelerator key="KP_Enter" signal="activate"/>
+                <accelerator key="Return" signal="activate"/>
               </object>
               <packing>
                 <property name="expand">True</property>
@@ -197,7 +197,8 @@
     <property name="destroy_with_parent">True</property>
     <property name="type_hint">dialog</property>
     <property name="message_type">error</property>
-    <property name="text" translatable="yes">Incomplete Details</property>
+    <property name="text" translatable="yes">&lt;b&gt;Incomplete Details&lt;/b&gt;</property>
+    <property name="use_markup">True</property>
     <child internal-child="vbox">
       <object class="GtkBox">
         <property name="can_focus">False</property>
@@ -798,8 +799,8 @@ TITLE LABEL&lt;/span&gt;&lt;/b&gt;</property>
                             </child>
                           </object>
                         </child>
-                        <accelerator key="KP_1" signal="clicked"/>
                         <accelerator key="1" signal="clicked"/>
+                        <accelerator key="KP_1" signal="clicked"/>
                         <style>
                           <class name="welcome_scr"/>
                         </style>
@@ -907,8 +908,8 @@ TITLE LABEL&lt;/span&gt;&lt;/b&gt;</property>
                             </child>
                           </object>
                         </child>
-                        <accelerator key="2" signal="clicked"/>
                         <accelerator key="KP_2" signal="clicked"/>
+                        <accelerator key="2" signal="clicked"/>
                         <style>
                           <class name="welcome_scr"/>
                         </style>
@@ -1975,8 +1976,8 @@ TITLE LABEL&lt;/span&gt;&lt;/b&gt;</property>
                         </child>
                       </object>
                     </child>
-                    <accelerator key="KP_1" signal="clicked"/>
                     <accelerator key="1" signal="clicked"/>
+                    <accelerator key="KP_1" signal="clicked"/>
                     <style>
                       <class name="welcome_scr"/>
                     </style>
@@ -3369,7 +3370,6 @@ TITLE LABEL&lt;/span&gt;&lt;/b&gt;</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="halign">center</property>
-                    <property name="margin_bottom">20</property>
                     <property name="label_xalign">0</property>
                     <property name="shadow_type">none</property>
                     <child>
@@ -3428,12 +3428,25 @@ TITLE LABEL&lt;/span&gt;&lt;/b&gt;</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
-                            <accelerator key="KP_Enter" signal="clicked"/>
+                            <signal name="clicked" handler="get_tic" swapped="no"/>
                             <accelerator key="Return" signal="clicked"/>
+                            <accelerator key="KP_Enter" signal="clicked"/>
                           </object>
                           <packing>
                             <property name="left_attach">0</property>
                             <property name="top_attach">2</property>
+                            <property name="width">2</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="dwnld_tic_msg_lbl">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="use_markup">True</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">0</property>
+                            <property name="top_attach">3</property>
                             <property name="width">2</property>
                           </packing>
                         </child>
@@ -3494,6 +3507,7 @@ TITLE LABEL&lt;/span&gt;&lt;/b&gt;</property>
                             <property name="receives_default">True</property>
                             <property name="halign">center</property>
                             <property name="always_show_image">True</property>
+                            <signal name="clicked" handler="save_tic" swapped="no"/>
                             <child>
                               <object class="GtkGrid">
                                 <property name="visible">True</property>
@@ -3529,6 +3543,7 @@ TITLE LABEL&lt;/span&gt;&lt;/b&gt;</property>
                                         <property name="can_focus">True</property>
                                         <property name="min_content_width">1</property>
                                         <property name="min_content_height">1</property>
+                                        <signal name="size-allocate" handler="size_allocate" swapped="no"/>
                                         <child>
                                           <object class="GtkViewport">
                                             <property name="visible">True</property>

@@ -101,7 +101,8 @@ typedef struct _dwnld_tic
     GtkWidget *scr; // Box to the screen
 
     GtkWidget *tic_num, *mobile_num; // Entries
-    GtkWidget *back, *get_tic; // Buttonds
+    GtkWidget *back, *get_tic; // Buttons
+    GtkWidget *msg_lbl; // Lable
 
     GtkWidget *revealer; 
     GtkWidget *tic_img, *dwnld; // GtkRevealer children
@@ -263,9 +264,10 @@ enum passenger_details
 
 enum get_tic_db
 {
+    ENTRY_EMPTY,
     INVALID_TICKET_NO,
     INVALID_MOBILE_NO,
     VALID_DATA,
-}
+};
 
 #endif

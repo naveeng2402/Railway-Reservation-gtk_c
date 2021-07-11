@@ -22,6 +22,9 @@ void quit(AtkWindow* win, gpointer arg)
     pthread_join(app->threads.get_seat_data, NULL);
     printf("Joined Thread 4\n");
 
+    pthread_join(app->threads.get_tic, NULL);
+    printf("Joined Thread 5\n");
+
     /* Removing all the reports */
     remove("rsc/report.html"); remove("rsc/report.pdf"); remove("rsc/report.png");
 
@@ -80,6 +83,29 @@ void size_allocate_flowbox(GtkWidget* w, GtkAllocation* allocation, gpointer arg
     
 }
 
+/* ## Copy rsc/report.pdf to desired location */
+void save_tic(GtkButton* btn,gpointer data)
+{
+    DATA* app = data;
+    char *filename;
+
+    GtkWidget *dig = gtk_file_chooser_dialog_new("SAVE TICKET",GTK_WINDOW(app->win),GTK_FILE_CHOOSER_ACTION_SAVE,"Cancel",
+                                      GTK_RESPONSE_CANCEL,
+                                      "SAVE",
+                                      GTK_RESPONSE_ACCEPT,NULL);
+    int res = gtk_dialog_run(GTK_DIALOG(dig));
+
+    if (res == GTK_RESPONSE_ACCEPT)
+    {
+        GtkFileChooser *chooser = GTK_FILE_CHOOSER(dig);
+        filename = gtk_file_chooser_get_uri(chooser);
+        printf("%s\n",filename);
+    }
+    gtk_widget_destroy(dig);
+
+    /* copy file */
+    download_html;
+}
 
 /**************************************************************************************************************
                                             WELCOME SCREEN
@@ -107,6 +133,16 @@ void book_tic(GtkButton* btn, gpointer arg)
     pthread_create(&(app->threads.fill_dest_date),NULL,get_dest_date,&(app->choose_train));
     gtk_stack_set_visible_child(GTK_STACK(app->stack),app->choose_train.scr);
     gtk_widget_grab_focus(app->choose_train.dest);
+}
+
+
+/* ## This fn is called when the download tickets in welcome screen is clicked */
+void dwnld_scr_tic(GtkButton* btn, gpointer arg)
+{
+    DATA* app = arg;
+    gtk_revealer_set_reveal_child(GTK_REVEALER(app->dwnld_tic.revealer), FALSE);
+    gtk_label_set_markup(GTK_LABEL(app->dwnld_tic.msg_lbl), "");
+    gtk_stack_set_visible_child(GTK_STACK(app->stack), app->dwnld_tic.scr);
 }
 
 /**************************************************************************************************************
@@ -227,10 +263,7 @@ void choose_seat_continue_clicked(GtkButton* btn,gpointer pram)
 
     if (app->enter_details.no_of_pass == 0)
     {
-        GtkWidget *dig = GTK_WIDGET(gtk_builder_get_object(gtk_builder_new_from_resource("/UI/UI.glade"),"Message_dig"));
-        gtk_message_dialog_format_secondary_markup(GTK_MESSAGE_DIALOG(dig),"Please select atleast 1 seat");
-        gtk_dialog_run(GTK_DIALOG(dig));
-        gtk_widget_destroy(GTK_WIDGET(dig));
+        show_msg_dig("<b>Incomplete Details</b>", "Please select atleast 1 seat");
     }
     else
     {   
@@ -298,10 +331,7 @@ void enter_details_continue_clicked(GtkButton* btn,gpointer data)
     /* Doing the work */
     if (is_all_good == false)
     {
-        GtkWidget *dig = GTK_WIDGET(gtk_builder_get_object(gtk_builder_new_from_resource("/UI/UI.glade"),"Message_dig"));
-        gtk_message_dialog_format_secondary_markup(GTK_MESSAGE_DIALOG(dig),"Please Enter all the details");
-        gtk_dialog_run(GTK_DIALOG(dig));
-        gtk_widget_destroy(GTK_WIDGET(dig));
+        show_msg_dig("<b>Incomplete Details</b>", "Please Enter All The Details");
     }
     else
     {
@@ -341,30 +371,6 @@ void check_details_continue_clicked(GtkButton* btn, gpointer data)
                                             VIEW TICKET SCREEN
 **************************************************************************************************************/
 
-/* ## Copy rsc/report.html to desired location */
-void save_tic(GtkButton* btn,gpointer data)
-{
-    DATA* app = data;
-    char *filename;
-
-    GtkWidget *dig = gtk_file_chooser_dialog_new("SAVE TICKET",GTK_WINDOW(app->win),GTK_FILE_CHOOSER_ACTION_SAVE,"Cancel",
-                                      GTK_RESPONSE_CANCEL,
-                                      "SAVE",
-                                      GTK_RESPONSE_ACCEPT,NULL);
-    int res = gtk_dialog_run(GTK_DIALOG(dig));
-
-    if (res == GTK_RESPONSE_ACCEPT)
-    {
-        GtkFileChooser *chooser = GTK_FILE_CHOOSER(dig);
-        filename = gtk_file_chooser_get_uri(chooser);
-        printf("%s\n",filename);
-    }
-    gtk_widget_destroy(dig);
-
-    /* copy file */
-    download_html;
-}
-
 void view_ticket_ok(GtkButton* btn,gpointer data)
 {
     DATA *app = data;
@@ -375,14 +381,21 @@ void view_ticket_ok(GtkButton* btn,gpointer data)
 }
 
 /**************************************************************************************************************
+                                            DOWNLOAD TICKET SCREEN
+**************************************************************************************************************/
+void get_tic(GtkButton* btn, gpointer data)
+{
+    DATA *app = data;
+    pthread_create(&(app->threads.get_tic), NULL, get_tic_thread, app);
+}
+/**************************************************************************************************************
                                             BACK
 **************************************************************************************************************/
 
-    /* ## This fn is used to move from choose train scr to welcome scr
-        - while moving all the entries from the comboboxes(Dropbox) are deleted to avoid duplicates when again entered 
-        - And makes revealer invisible
-    */
-void back_to_welcome(GtkButton* btn, gpointer data)
+/* ## This fn is used to move from choose train scr to welcome scr
+    - while moving all the entries from the comboboxes(Dropbox) are deleted to avoid duplicates when again entered 
+    - And makes revealer invisible */
+void back_to_welcome_bk_tic(GtkButton* btn, gpointer data)
 {
     DATA *app=data;
     app->choose_train.is_revealer_visible = false;
@@ -390,6 +403,17 @@ void back_to_welcome(GtkButton* btn, gpointer data)
     gtk_combo_box_text_remove_all(GTK_COMBO_BOX_TEXT(app->choose_train.dest));
     gtk_combo_box_text_remove_all(GTK_COMBO_BOX_TEXT(app->choose_train.date));
     gtk_stack_set_visible_child(GTK_STACK(app->stack),app->welcome.scr);
+}
+
+/* ## This fn is used to move from dwnld tic screen to welcome screen
+    - While moving the revealer is hidden and the entries are emptied */
+void back_to_welcome_dwnld_scr(GtkButton* btn, gpointer data)
+{
+    DATA* app = data;
+    gtk_revealer_set_reveal_child(GTK_REVEALER(app->dwnld_tic.revealer), FALSE);
+    gtk_entry_set_text(GTK_ENTRY(app->dwnld_tic.tic_num), "");
+    gtk_entry_set_text(GTK_ENTRY(app->dwnld_tic.mobile_num), "");   
+    gtk_stack_set_visible_child(GTK_STACK(app->stack), app->welcome.scr);
 }
 
 /* ## This fn is used to move from choose seat scr to choose train scr

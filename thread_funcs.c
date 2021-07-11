@@ -78,6 +78,7 @@ void* get_seats_data(void* arg)
     return 0;
 }
 
+/* Books the ticket and get its data then genratare reports (.pdf and .png from it) */
 void* book_and_get_ticket(void* arg)
 {
     DATA* app = arg;
@@ -98,5 +99,33 @@ void* book_and_get_ticket(void* arg)
     /* Removing the reports */
     remove("rsc/report.png");
 
+    return 0;
+}
+
+/* ## This fn is called when the get ticket button in download screen is clicked
+    - Checks whether the ticket is present
+    - if the ticket is present checks that the mobile is correct
+    - if both the details are correct the reports are generated and shown else suitable error popups are given */
+void* get_tic_thread(void* arg)
+{
+    DATA* app = arg;
+
+    int result = (SQL_get_tic(&(app->dwnld_tic)));
+    
+    if (result == VALID_DATA)
+    {
+        TICKET_DETAILS* dets = SQL_get_ticket_data((char*)gtk_entry_get_text(GTK_ENTRY(app->dwnld_tic.tic_num)));
+        create_report_html(dets);
+        generate_reports();
+        gtk_image_set_from_file(GTK_IMAGE(app->dwnld_tic.tic_img), "rsc/report.png");
+        remove("rsc/report.png");
+        gtk_label_set_markup(GTK_LABEL(app->dwnld_tic.msg_lbl), "");
+        gtk_revealer_set_reveal_child(GTK_REVEALER(app->dwnld_tic.revealer), TRUE);
+    }
+    else
+    {
+        const char* msg = (result == INVALID_TICKET_NO)?"<b>Please check your ticket number</b>":((result == INVALID_MOBILE_NO)?"<b>Please check the mobile number</b>":"<b>Please enter all the details</b>");
+        gtk_label_set_markup(GTK_LABEL(app->dwnld_tic.msg_lbl), msg);
+    }
     return 0;
 }

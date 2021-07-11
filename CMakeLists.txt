@@ -28,6 +28,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE Threads::Threads)
 target_link_libraries (${PROJECT_NAME} LINK_PUBLIC sqlite3)
 
 # Adding custom files
+FILE(COPY rsc/data DESTINATION "${CMAKE_BINARY_DIR}/rsc/")
 if(WIN32)
     FILE(COPY rsc/bins/wkhtmltopdf.exe DESTINATION "${CMAKE_BINARY_DIR}/rsc/bins/")
     FILE(COPY rsc/bins/wkhtmltoimage.exe DESTINATION "${CMAKE_BINARY_DIR}/rsc/bins/")

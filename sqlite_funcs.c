@@ -559,3 +559,54 @@ TICKET_DETAILS* SQL_get_ticket_data(char* ticket_id)
     return ticket_details;
 }
 
+/* ## Gets the details of the ticket using ticket number and return appropriate errors */
+int SQL_get_tic(W_dwnld_tic* scr)
+{
+    int ret_val;
+    char* is_tic_present = malloc(1), *db_mobile_num = malloc(1);
+
+    PRAM* arg = malloc(sizeof(PRAM));
+    arg->str = NULL; arg->arr = NULL; arg->arr_2d = NULL; arg->count = 0;
+
+    const char* tic_num = gtk_entry_get_text(GTK_ENTRY(scr->tic_num));
+    const char* mobile_num = gtk_entry_get_text(GTK_ENTRY(scr->mobile_num));
+
+    if ((strcmp(tic_num,"")==0) || (strcmp(mobile_num,"")==0))
+    {
+        return ENTRY_EMPTY;
+    }
+
+    sqlite3* db;
+    char* sql;
+
+    sqlite3_open("rsc/data", &db);
+
+    sql = g_strdup_printf("SELECT count(*) FROM TICKET WHERE ticket_number = %s", tic_num);
+    arg->str = is_tic_present;
+    sqlite3_exec(db, sql, callback_str, arg, NULL);
+    arg->str = NULL;
+
+    if (strcmp(is_tic_present, "0")==0)
+    {
+        ret_val =  INVALID_TICKET_NO;
+    }
+    else
+    {
+        sql = g_strdup_printf("SELECT mobile_no FROM TICKET WHERE ticket_number = %s", tic_num);
+        arg->str = db_mobile_num;
+        sqlite3_exec(db, sql, callback_str, arg, NULL);
+        arg->str = NULL;
+        if (strcmp(mobile_num, db_mobile_num)==0)
+        {
+            ret_val = VALID_DATA;
+        }
+        else
+        {
+            ret_val = INVALID_MOBILE_NO;
+        }
+    }
+
+    sqlite3_close(db);
+    free(is_tic_present); free(db_mobile_num); free(arg);   
+    return ret_val;
+}

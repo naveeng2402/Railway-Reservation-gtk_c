@@ -27,6 +27,7 @@ void get_imgs(GtkBuilder*, GHashTable*);
 void rem_container_wgts(GtkWidget*, gpointer);
 void create_report_html(TICKET_DETAILS*);
 void generate_reports();
+void show_msg_dig(const char*, const char*);
 
 /* Helper Functions */
 int check_db_present();
@@ -43,6 +44,7 @@ void fill_check_scr_lst_box(DATA*);
 G_MODULE_EXPORT void quit(AtkWindow*, gpointer);
 G_MODULE_EXPORT void size_allocate(GtkWidget*, GtkAllocation*, gpointer);
 G_MODULE_EXPORT void size_allocate_flowbox(GtkWidget*, GtkAllocation*, gpointer); 
+G_MODULE_EXPORT void save_tic(GtkButton*, gpointer);
 
                 // Welcome
 G_MODULE_EXPORT void welcome_info(GtkButton*,gpointer);
@@ -64,11 +66,14 @@ G_MODULE_EXPORT void enter_details_continue_clicked(GtkButton*,gpointer);
 G_MODULE_EXPORT void check_details_continue_clicked(GtkButton*, gpointer);
 
                 // View Details
-G_MODULE_EXPORT void save_tic(GtkButton*, gpointer);
 G_MODULE_EXPORT void view_ticket_ok(GtkButton*, gpointer);
 
+                // Download Ticket
+G_MODULE_EXPORT void get_tic(GtkButton*, gpointer);
+
                 // Back btns
-G_MODULE_EXPORT void back_to_welcome(GtkButton*,gpointer);
+G_MODULE_EXPORT void back_to_welcome_bk_tic(GtkButton*,gpointer);
+G_MODULE_EXPORT void back_to_welcome_dwnld_scr(GtkButton*,gpointer);
 G_MODULE_EXPORT void back_to_choose_train(GtkButton*,gpointer);
 G_MODULE_EXPORT void back_to_choose_seat(GtkButton*,gpointer);
 G_MODULE_EXPORT void back_to_enter_details(GtkButton*,gpointer);
@@ -86,6 +91,7 @@ void SQL_get_available_trains_lst(W_choose_train*);
 void SQL_get_seats_data(W_choose_seats*);
 char* SQL_book_ticket(DATA*);
 TICKET_DETAILS* SQL_get_ticket_data(char*);
+int SQL_get_tic(W_dwnld_tic* scr);
 
 /* Callback Functions */
 int callback_str(void *, int, char **, char **);
@@ -99,6 +105,7 @@ void* get_dest_date(void*);
 void* get_available_trains_lst(void*);
 void* get_seats_data(void*);
 void* book_and_get_ticket(void*);
+void* get_tic_thread(void* arg);
 
 /* Platform Functions */
 void SLEEP(int);

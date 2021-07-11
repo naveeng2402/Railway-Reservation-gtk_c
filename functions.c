@@ -63,6 +63,17 @@ void get_widgets(GtkBuilder* b, DATA* app)
     app->view_ticket.download = GTK_WIDGET(gtk_builder_get_object(b,"view_ticket_scr_dwnld_btn"));
     app->view_ticket.web_view = GTK_WIDGET(gtk_builder_get_object(b,"web_view"));
 
+    // Widgets for Download Tickets
+    app->dwnld_tic.scr = GTK_WIDGET(gtk_builder_get_object(b,"download_tic_scr"));
+    app->dwnld_tic.tic_num = GTK_WIDGET(gtk_builder_get_object(b,"tic_num_entry"));
+    app->dwnld_tic.mobile_num = GTK_WIDGET(gtk_builder_get_object(b,"mobile_num_entry"));
+    app->dwnld_tic.back = GTK_WIDGET(gtk_builder_get_object(b,"download_scr_back_btn"));
+    app->dwnld_tic.get_tic = GTK_WIDGET(gtk_builder_get_object(b,"get_tic_btn"));
+    app->dwnld_tic.msg_lbl = GTK_WIDGET(gtk_builder_get_object(b,"dwnld_tic_msg_lbl"));
+    app->dwnld_tic.revealer = GTK_WIDGET(gtk_builder_get_object(b,"download_tic_scr_revealer"));
+    app->dwnld_tic.tic_img = GTK_WIDGET(gtk_builder_get_object(b,"dwnld_tic_img"));
+    app->dwnld_tic.dwnld = GTK_WIDGET(gtk_builder_get_object(b,"download_tic_scr_dwnld_btn"));
+
 }
 
 /* Adding data to the hashtable */
@@ -98,7 +109,7 @@ void get_imgs(GtkBuilder* b,GHashTable* tbl)
     populate_tbl(b,tbl,"welcome_admin_scrl","welcome_admin_ico","admin");
     populate_tbl(b,tbl,"welcome_info_scrl","welcome_info_ico","info");
     populate_tbl(b,tbl,"welcome_scr_book_tic_scrl","welcome_scr_book_tic_img","book_ticket");
-    populate_tbl(b,tbl,"welcome_scr_dwnld_tic_scrl","welcome_scr_dwnld_tic_img","view_ticket");
+    populate_tbl(b,tbl,"welcome_scr_dwnld_tic_scrl","welcome_scr_dwnld_tic_img","dwnld_tic");
     populate_tbl(b,tbl,"welcome_scr_cncl_tic_scrl","welcome_scr_cncl_tic_img","cancel_ticket");
 
     // For Choose train scr
@@ -120,8 +131,12 @@ void get_imgs(GtkBuilder* b,GHashTable* tbl)
     populate_tbl(b,tbl,"check_details_scr_confirm_scrl","check_details_scr_confirm_ico","continue");
 
     // For view details
-    populate_tbl(b,tbl,"view_ticket_scr_dwnld_scrl","view_ticket_scr_dwnld_ico","continue");
+    populate_tbl(b,tbl,"view_ticket_scr_dwnld_scrl","view_ticket_scr_dwnld_ico","download");
     populate_tbl(b,tbl,"view_ticket_scr_ok_scrl","view_ticket_scr_ok_ico","continue");
+
+    // For Download Tickets
+    populate_tbl(b,tbl,"download_tic_scr_dwnld_scrl","download_tic_scr_dwnld_ico","download");
+    populate_tbl(b,tbl,"download_ticket_scr_back_scrl","download_ticket_scr_back_ico","back");
 }
 
 /* Removes the child from a container */
@@ -260,6 +275,18 @@ void generate_reports()
         system("rsc/bins/wkhtmltopdf rsc/report.html rsc/report.pdf");
         system("rsc/bins/wkhtmltoimage rsc/report.html rsc/report.png");
     #endif
+}
+
+/* Shows a message dialog with the given Characters 
+    -pram: primary :: Primary Markup
+    -pram: secondary :: Secondary Markup*/
+void show_msg_dig(const char* primary, const char* secondary)
+{
+    GtkWidget *dig = GTK_WIDGET(gtk_builder_get_object(gtk_builder_new_from_resource("/UI/UI.glade"),"Message_dig"));
+    gtk_message_dialog_set_markup(GTK_MESSAGE_DIALOG(dig), primary);
+    gtk_message_dialog_format_secondary_markup(GTK_MESSAGE_DIALOG(dig), "%s", secondary);
+    gtk_dialog_run(GTK_DIALOG(dig));
+    gtk_widget_destroy(GTK_WIDGET(dig));
 }
 
 /************************************************************************************************************
