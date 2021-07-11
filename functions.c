@@ -74,6 +74,17 @@ void get_widgets(GtkBuilder* b, DATA* app)
     app->dwnld_tic.tic_img = GTK_WIDGET(gtk_builder_get_object(b,"dwnld_tic_img"));
     app->dwnld_tic.dwnld = GTK_WIDGET(gtk_builder_get_object(b,"download_tic_scr_dwnld_btn"));
 
+    // Widgets for cancel Tickets
+    app->cancel_tic.scr = GTK_WIDGET(gtk_builder_get_object(b,"cancel_tic_scr"));
+    app->cancel_tic.tic_num = GTK_WIDGET(gtk_builder_get_object(b,"cancel_tic_num_entry"));
+    app->cancel_tic.mobile_num = GTK_WIDGET(gtk_builder_get_object(b,"cancel_tic_mobile_num_entry"));
+    app->cancel_tic.back = GTK_WIDGET(gtk_builder_get_object(b,"cancel_tic_scr_back_btn"));
+    app->cancel_tic.find_tic = GTK_WIDGET(gtk_builder_get_object(b,"cancel_tic_find_tic_btn"));
+    app->cancel_tic.msg_lbl = GTK_WIDGET(gtk_builder_get_object(b,"cancel_tic_msg_lbl"));
+    app->cancel_tic.revealer = GTK_WIDGET(gtk_builder_get_object(b,"cancel_tic_scr_revealer"));
+    app->cancel_tic.tic_img = GTK_WIDGET(gtk_builder_get_object(b,"cancel_tic_img"));
+    app->cancel_tic.dwnld_and_cancel = GTK_WIDGET(gtk_builder_get_object(b,"cancel_tic_scr_dwnld_and_cancel_btn"));
+
 }
 
 /* Adding data to the hashtable */
@@ -137,6 +148,11 @@ void get_imgs(GtkBuilder* b,GHashTable* tbl)
     // For Download Tickets
     populate_tbl(b,tbl,"download_tic_scr_dwnld_scrl","download_tic_scr_dwnld_ico","download");
     populate_tbl(b,tbl,"download_ticket_scr_back_scrl","download_ticket_scr_back_ico","back");
+
+    // For Download Tickets
+    populate_tbl(b,tbl,"cancel_tic_scr_dwnld_and_cancel_scrl","cancel_tic_scr_dwnld_and_cancel_ico","cancel");
+    populate_tbl(b,tbl,"cancel_tic_scr_back_scrl","cancel_tic_scr_back_ico","back");
+    
 }
 
 /* Removes the child from a container */

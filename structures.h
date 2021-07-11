@@ -109,6 +109,20 @@ typedef struct _dwnld_tic
 
 }W_dwnld_tic;
 
+/* Widgets for CancelTicket Screen */
+typedef struct _cancel_tic
+{
+    GtkWidget *scr; // Box to the screen
+
+    GtkWidget *tic_num, *mobile_num; // Entries
+    GtkWidget *back, *find_tic; // Buttons
+    GtkWidget *msg_lbl; // Lable
+
+    GtkWidget *revealer; 
+    GtkWidget *tic_img, *dwnld_and_cancel; // GtkRevealer children
+
+}W_cancel_tic;
+
 /***********************************************************************************************
                                     SQLITE WIDGETS
  **********************************************************************************************/
@@ -164,6 +178,7 @@ typedef struct _data
     W_check_details check_details;
     W_view_ticket view_ticket;
     W_dwnld_tic dwnld_tic;
+    W_cancel_tic cancel_tic;
 
     GHashTable *pixbuffs; // Hash table to store gdkpixbuffs, GtkScrolledWindow and GtkImages  
 }DATA;

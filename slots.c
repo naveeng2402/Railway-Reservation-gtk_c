@@ -135,7 +135,6 @@ void book_tic(GtkButton* btn, gpointer arg)
     gtk_widget_grab_focus(app->choose_train.dest);
 }
 
-
 /* ## This fn is called when the download tickets in welcome screen is clicked */
 void dwnld_scr_tic(GtkButton* btn, gpointer arg)
 {
@@ -143,6 +142,15 @@ void dwnld_scr_tic(GtkButton* btn, gpointer arg)
     gtk_revealer_set_reveal_child(GTK_REVEALER(app->dwnld_tic.revealer), FALSE);
     gtk_label_set_markup(GTK_LABEL(app->dwnld_tic.msg_lbl), "");
     gtk_stack_set_visible_child(GTK_STACK(app->stack), app->dwnld_tic.scr);
+}
+
+/* ## This fn is called when the cancel tickets in welcome screen is clicked */
+void cancel_scr_tic(GtkButton* btn, gpointer arg)
+{
+    DATA* app = arg;
+    gtk_revealer_set_reveal_child(GTK_REVEALER(app->cancel_tic.revealer), FALSE);
+    gtk_label_set_markup(GTK_LABEL(app->cancel_tic.msg_lbl), "");
+    gtk_stack_set_visible_child(GTK_STACK(app->stack), app->cancel_tic.scr);
 }
 
 /**************************************************************************************************************
@@ -413,6 +421,17 @@ void back_to_welcome_dwnld_scr(GtkButton* btn, gpointer data)
     gtk_revealer_set_reveal_child(GTK_REVEALER(app->dwnld_tic.revealer), FALSE);
     gtk_entry_set_text(GTK_ENTRY(app->dwnld_tic.tic_num), "");
     gtk_entry_set_text(GTK_ENTRY(app->dwnld_tic.mobile_num), "");   
+    gtk_stack_set_visible_child(GTK_STACK(app->stack), app->welcome.scr);
+}
+
+/* ## This fn is used to move from cancel tic screen to welcome screen
+    - While moving the revealer is hidden and the entries are emptied */
+void back_to_welcome_cancel_scr(GtkButton* btn, gpointer data)
+{
+    DATA* app = data;
+    gtk_revealer_set_reveal_child(GTK_REVEALER(app->cancel_tic.revealer), FALSE);
+    gtk_entry_set_text(GTK_ENTRY(app->cancel_tic.tic_num), "");
+    gtk_entry_set_text(GTK_ENTRY(app->cancel_tic.mobile_num), "");   
     gtk_stack_set_visible_child(GTK_STACK(app->stack), app->welcome.scr);
 }
 
