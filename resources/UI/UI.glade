@@ -3428,6 +3428,7 @@ TITLE LABEL&lt;/span&gt;&lt;/b&gt;</property>
                         <child>
                           <object class="GtkButton" id="get_tic_btn">
                             <property name="label" translatable="yes">Get Ticket</property>
+                            <property name="name">dwnld_tic</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
@@ -3757,9 +3758,11 @@ TITLE LABEL&lt;/span&gt;&lt;/b&gt;</property>
                         <child>
                           <object class="GtkButton" id="cancel_tic_find_tic_btn">
                             <property name="label" translatable="yes">Find Ticket</property>
+                            <property name="name">cancel_tic</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
+                            <signal name="clicked" handler="get_tic" swapped="no"/>
                             <accelerator key="Return" signal="clicked"/>
                             <accelerator key="KP_Enter" signal="clicked"/>
                           </object>
@@ -3773,6 +3776,7 @@ TITLE LABEL&lt;/span&gt;&lt;/b&gt;</property>
                           <object class="GtkLabel" id="cancel_tic_msg_lbl">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">&lt;b&gt;asdf&lt;/b&gt;</property>
                             <property name="use_markup">True</property>
                           </object>
                           <packing>

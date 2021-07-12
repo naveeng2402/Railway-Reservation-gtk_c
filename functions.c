@@ -79,11 +79,11 @@ void get_widgets(GtkBuilder* b, DATA* app)
     app->cancel_tic.tic_num = GTK_WIDGET(gtk_builder_get_object(b,"cancel_tic_num_entry"));
     app->cancel_tic.mobile_num = GTK_WIDGET(gtk_builder_get_object(b,"cancel_tic_mobile_num_entry"));
     app->cancel_tic.back = GTK_WIDGET(gtk_builder_get_object(b,"cancel_tic_scr_back_btn"));
-    app->cancel_tic.find_tic = GTK_WIDGET(gtk_builder_get_object(b,"cancel_tic_find_tic_btn"));
+    app->cancel_tic.get_tic = GTK_WIDGET(gtk_builder_get_object(b,"cancel_tic_find_tic_btn"));
     app->cancel_tic.msg_lbl = GTK_WIDGET(gtk_builder_get_object(b,"cancel_tic_msg_lbl"));
     app->cancel_tic.revealer = GTK_WIDGET(gtk_builder_get_object(b,"cancel_tic_scr_revealer"));
     app->cancel_tic.tic_img = GTK_WIDGET(gtk_builder_get_object(b,"cancel_tic_img"));
-    app->cancel_tic.dwnld_and_cancel = GTK_WIDGET(gtk_builder_get_object(b,"cancel_tic_scr_dwnld_and_cancel_btn"));
+    app->cancel_tic.dwnld = GTK_WIDGET(gtk_builder_get_object(b,"cancel_tic_scr_dwnld_and_cancel_btn"));
 
 }
 

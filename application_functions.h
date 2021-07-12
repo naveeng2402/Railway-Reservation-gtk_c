@@ -91,7 +91,7 @@ void SQL_get_available_trains_lst(W_choose_train*);
 void SQL_get_seats_data(W_choose_seats*);
 char* SQL_book_ticket(DATA*);
 TICKET_DETAILS* SQL_get_ticket_data(char*);
-int SQL_get_tic(W_dwnld_tic* scr);
+int SQL_get_tic(W_tic_ops* scr);
 
 /* Callback Functions */
 int callback_str(void *, int, char **, char **);

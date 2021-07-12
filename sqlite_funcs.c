@@ -560,7 +560,7 @@ TICKET_DETAILS* SQL_get_ticket_data(char* ticket_id)
 }
 
 /* ## Gets the details of the ticket using ticket number and return appropriate errors */
-int SQL_get_tic(W_dwnld_tic* scr)
+int SQL_get_tic(W_tic_ops* scr)
 {
     int ret_val;
     char* is_tic_present = malloc(1), *db_mobile_num = malloc(1);
@@ -574,6 +574,14 @@ int SQL_get_tic(W_dwnld_tic* scr)
     if ((strcmp(tic_num,"")==0) || (strcmp(mobile_num,"")==0))
     {
         return ENTRY_EMPTY;
+    }
+
+    for (int i = 0; i < strlen(tic_num); i++)
+    {
+        if (('0'>tic_num[i]) || (tic_num[i]>'9'))
+        {
+            return ALPHABETS;
+        }
     }
 
     sqlite3* db;

@@ -108,24 +108,24 @@ void* book_and_get_ticket(void* arg)
     - if both the details are correct the reports are generated and shown else suitable error popups are given */
 void* get_tic_thread(void* arg)
 {
-    DATA* app = arg;
+    W_tic_ops* scr = arg;
 
-    int result = (SQL_get_tic(&(app->dwnld_tic)));
+    int result = (SQL_get_tic(scr));
     
     if (result == VALID_DATA)
     {
-        TICKET_DETAILS* dets = SQL_get_ticket_data((char*)gtk_entry_get_text(GTK_ENTRY(app->dwnld_tic.tic_num)));
+        TICKET_DETAILS* dets = SQL_get_ticket_data((char*)gtk_entry_get_text(GTK_ENTRY(scr->tic_num)));
         create_report_html(dets);
         generate_reports();
-        gtk_image_set_from_file(GTK_IMAGE(app->dwnld_tic.tic_img), "rsc/report.png");
+        gtk_image_set_from_file(GTK_IMAGE(scr->tic_img), "rsc/report.png");
         remove("rsc/report.png");
-        gtk_label_set_markup(GTK_LABEL(app->dwnld_tic.msg_lbl), "");
-        gtk_revealer_set_reveal_child(GTK_REVEALER(app->dwnld_tic.revealer), TRUE);
+        gtk_label_set_markup(GTK_LABEL(scr->msg_lbl), "");
+        gtk_revealer_set_reveal_child(GTK_REVEALER(scr->revealer), TRUE);
     }
     else
     {
-        const char* msg = (result == INVALID_TICKET_NO)?"<b>Please check your ticket number</b>":((result == INVALID_MOBILE_NO)?"<b>Please check the mobile number</b>":"<b>Please enter all the details</b>");
-        gtk_label_set_markup(GTK_LABEL(app->dwnld_tic.msg_lbl), msg);
+        const char* msg = (result == INVALID_TICKET_NO || result == ALPHABETS)?"<b>Please check your ticket number</b>":((result == INVALID_MOBILE_NO)?"<b>Please check the mobile number</b>":"<b>Please enter all the details</b>");
+        gtk_label_set_markup(GTK_LABEL(scr->msg_lbl), msg);
     }
     return 0;
 }

@@ -389,12 +389,23 @@ void view_ticket_ok(GtkButton* btn,gpointer data)
 }
 
 /**************************************************************************************************************
-                                            DOWNLOAD TICKET SCREEN
+                                            DOWNLOAD & CANCEL TICKET SCREEN
 **************************************************************************************************************/
 void get_tic(GtkButton* btn, gpointer data)
 {
     DATA *app = data;
-    pthread_create(&(app->threads.get_tic), NULL, get_tic_thread, app);
+    W_tic_ops* scr;
+
+    if (strcmp("dwnld_tic", gtk_widget_get_name(GTK_WIDGET(btn)))==0)
+    {
+        scr = &(app->dwnld_tic);
+    }
+    else
+    {
+        scr = &(app->cancel_tic);
+    }
+    
+    pthread_create(&(app->threads.get_tic), NULL, get_tic_thread, scr);
 }
 /**************************************************************************************************************
                                             BACK
