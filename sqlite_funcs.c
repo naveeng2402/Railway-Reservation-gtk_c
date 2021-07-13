@@ -563,7 +563,6 @@ TICKET_DETAILS* SQL_get_ticket_data(char* ticket_id)
 int SQL_get_tic(W_tic_ops* scr)
 {
     int ret_val;
-    char* is_tic_present = malloc(1), *db_mobile_num = malloc(1);
 
     PRAM* arg = malloc(sizeof(PRAM));
     arg->str = NULL; arg->arr = NULL; arg->arr_2d = NULL; arg->count = 0;
@@ -584,6 +583,9 @@ int SQL_get_tic(W_tic_ops* scr)
         }
     }
 
+    char* is_tic_present = malloc(1), *db_mobile_num = malloc(1), *is_cancelled = malloc(1), *is_old = malloc(1);
+    time_t *now = malloc(sizeof(time_t));
+
     sqlite3* db;
     char* sql;
 
@@ -600,21 +602,87 @@ int SQL_get_tic(W_tic_ops* scr)
     }
     else
     {
-        sql = g_strdup_printf("SELECT mobile_no FROM TICKET WHERE ticket_number = %s", tic_num);
-        arg->str = db_mobile_num;
+        sql = g_strdup_printf("SELECT is_cancelled FROM TICKET WHERE ticket_number = %s", tic_num);
+        arg->str = is_cancelled;
         sqlite3_exec(db, sql, callback_str, arg, NULL);
         arg->str = NULL;
-        if (strcmp(mobile_num, db_mobile_num)==0)
+
+        if (atoi(is_cancelled) == 1)
         {
-            ret_val = VALID_DATA;
+            ret_val = CANCELLED_TICKET;
         }
         else
         {
-            ret_val = INVALID_MOBILE_NO;
+            if (strcmp(scr->name, "CANCEL") == 0)
+            {
+                time(now); 
+                sql = g_strdup_printf("SELECT count(*) FROM TICKET as tic JOIN TRAIN as t ON tic.ticket_train_id=t.id JOIN Train_Dates as t_dt ON t_dt.train_id=t.id JOIN DATES as dt ON dt.id=t_dt.dates_id WHERE tic.ticket_number = %s AND dt.unix_time>%ld", tic_num, *now);
+                arg->str = is_old;
+                sqlite3_exec(db, sql, callback_str, arg, NULL);
+                arg->str = NULL;
+
+                if (atoi(is_old) == 0)
+                {
+                    sqlite3_close(db);
+                    free(is_tic_present); free(is_cancelled); free(is_old); free(db_mobile_num); free(arg); free(now);
+                    return OLD_TRAIN;
+                }
+            }
+            sql = g_strdup_printf("SELECT mobile_no FROM TICKET WHERE ticket_number = %s", tic_num);
+            arg->str = db_mobile_num;
+            sqlite3_exec(db, sql, callback_str, arg, NULL);
+            arg->str = NULL;
+            if (strcmp(mobile_num, db_mobile_num)==0)
+            {
+                ret_val = VALID_DATA;
+            }
+            else
+            {
+                ret_val = INVALID_MOBILE_NO;
+            }
         }
     }
 
     sqlite3_close(db);
-    free(is_tic_present); free(db_mobile_num); free(arg);   
+    free(is_tic_present); free(is_cancelled); free(is_old); free(db_mobile_num); free(arg); free(now);   
     return ret_val;
+}
+
+/* ## Makes suitable changes to the db to cancel ticket */
+void SQL_cancel_tic(char* tic_num)
+{
+    PRAM* arg = malloc(sizeof(PRAM));
+    arg->str = NULL; arg->arr = NULL; arg->arr_2d = NULL; arg->count = 0;
+
+    sqlite3* db;
+    char* sql;
+
+    char *len = malloc(1), **seat_ids;
+
+    sqlite3_open("rsc/data", &db);
+
+    /* Getting the number of passengers */
+    sql = g_strdup_printf("SELECT count(*) FROM PASSENGERS WHERE ticket_id = %s",tic_num);
+    arg->str = len;
+    sqlite3_exec(db, sql, callback_str, arg, NULL);
+
+    /* Getting their seat ids */
+    seat_ids = calloc(atoi(len), sizeof(char*));
+    sql = g_strdup_printf("SELECT passenger_seat FROM PASSENGERS WHERE ticket_id = %s", tic_num);
+    arg->arr = seat_ids;
+    sqlite3_exec(db, sql, callback_col, arg, NULL);
+
+    /* Updating ticket */
+    sql = g_strdup_printf("UPDATE TICKET SET is_cancelled = 1 WHERE ticket_number = %s", tic_num);
+    sqlite3_exec(db, sql, NULL, NULL, NULL);
+
+    for (int i = 0; i < atoi(len); i++)
+    {
+        sql = g_strdup_printf("UPDATE SEAT SET is_booked = 0 WHERE id = %s", seat_ids[i]);
+        sqlite3_exec(db, sql, NULL, NULL, NULL);
+    }
+
+    sqlite3_close(db);
+    free(len); free(seat_ids);   
+    printf("\nTicket Cancelled Successfully\n");
 }

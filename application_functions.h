@@ -28,6 +28,7 @@ void rem_container_wgts(GtkWidget*, gpointer);
 void create_report_html(TICKET_DETAILS*);
 void generate_reports();
 void show_msg_dig(const char*, const char*);
+int show_confirmation_dig(const char*, const char*);
 
 /* Helper Functions */
 int check_db_present();
@@ -49,6 +50,8 @@ G_MODULE_EXPORT void save_tic(GtkButton*, gpointer);
                 // Welcome
 G_MODULE_EXPORT void welcome_info(GtkButton*,gpointer);
 G_MODULE_EXPORT void book_tic(GtkButton*,gpointer);
+G_MODULE_EXPORT void dwnld_scr_tic(GtkButton*,gpointer);
+G_MODULE_EXPORT void cancel_scr_tic(GtkButton*,gpointer);
 
                 // Choose Trains
 G_MODULE_EXPORT void get_available_trains(GtkButton*,gpointer);
@@ -68,8 +71,11 @@ G_MODULE_EXPORT void check_details_continue_clicked(GtkButton*, gpointer);
                 // View Details
 G_MODULE_EXPORT void view_ticket_ok(GtkButton*, gpointer);
 
-                // Download Ticket
+                // Download and Cancel Ticket
 G_MODULE_EXPORT void get_tic(GtkButton*, gpointer);
+
+                // Cancel Ticket
+G_MODULE_EXPORT void dwnld_and_cncl_tic(GtkButton*, gpointer);
 
                 // Back btns
 G_MODULE_EXPORT void back_to_welcome_bk_tic(GtkButton*,gpointer);
@@ -92,6 +98,7 @@ void SQL_get_seats_data(W_choose_seats*);
 char* SQL_book_ticket(DATA*);
 TICKET_DETAILS* SQL_get_ticket_data(char*);
 int SQL_get_tic(W_tic_ops* scr);
+void SQL_cancel_tic(char*);
 
 /* Callback Functions */
 int callback_str(void *, int, char **, char **);
@@ -105,7 +112,8 @@ void* get_dest_date(void*);
 void* get_available_trains_lst(void*);
 void* get_seats_data(void*);
 void* book_and_get_ticket(void*);
-void* get_tic_thread(void* arg);
+void* get_tic_thread(void*);
+void* cancel_tic(void*);
 
 /* Platform Functions */
 void SLEEP(int);

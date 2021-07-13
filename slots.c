@@ -25,6 +25,9 @@ void quit(AtkWindow* win, gpointer arg)
     pthread_join(app->threads.get_tic, NULL);
     printf("Joined Thread 5\n");
 
+    pthread_join(app->threads.cancel_tic, NULL);
+    printf("Joined Thread 6\n");
+
     /* Removing all the reports */
     remove("rsc/report.html"); remove("rsc/report.pdf"); remove("rsc/report.png");
 
@@ -131,6 +134,7 @@ void book_tic(GtkButton* btn, gpointer arg)
     DATA *app = arg;
     gtk_stack_set_transition_type(GTK_STACK(app->stack),GTK_STACK_TRANSITION_TYPE_SLIDE_LEFT_RIGHT);
     pthread_create(&(app->threads.fill_dest_date),NULL,get_dest_date,&(app->choose_train));
+    gtk_revealer_set_reveal_child(GTK_REVEALER(app->choose_train.revealer), FALSE);
     gtk_stack_set_visible_child(GTK_STACK(app->stack),app->choose_train.scr);
     gtk_widget_grab_focus(app->choose_train.dest);
 }
@@ -141,6 +145,7 @@ void dwnld_scr_tic(GtkButton* btn, gpointer arg)
     DATA* app = arg;
     gtk_revealer_set_reveal_child(GTK_REVEALER(app->dwnld_tic.revealer), FALSE);
     gtk_label_set_markup(GTK_LABEL(app->dwnld_tic.msg_lbl), "");
+    gtk_stack_set_transition_type(GTK_STACK(app->stack),GTK_STACK_TRANSITION_TYPE_SLIDE_LEFT_RIGHT);
     gtk_stack_set_visible_child(GTK_STACK(app->stack), app->dwnld_tic.scr);
 }
 
@@ -150,6 +155,7 @@ void cancel_scr_tic(GtkButton* btn, gpointer arg)
     DATA* app = arg;
     gtk_revealer_set_reveal_child(GTK_REVEALER(app->cancel_tic.revealer), FALSE);
     gtk_label_set_markup(GTK_LABEL(app->cancel_tic.msg_lbl), "");
+    gtk_stack_set_transition_type(GTK_STACK(app->stack),GTK_STACK_TRANSITION_TYPE_SLIDE_LEFT_RIGHT);
     gtk_stack_set_visible_child(GTK_STACK(app->stack), app->cancel_tic.scr);
 }
 
@@ -391,6 +397,8 @@ void view_ticket_ok(GtkButton* btn,gpointer data)
 /**************************************************************************************************************
                                             DOWNLOAD & CANCEL TICKET SCREEN
 **************************************************************************************************************/
+
+/* Invokes the get_tic_thread */
 void get_tic(GtkButton* btn, gpointer data)
 {
     DATA *app = data;
@@ -407,6 +415,27 @@ void get_tic(GtkButton* btn, gpointer data)
     
     pthread_create(&(app->threads.get_tic), NULL, get_tic_thread, scr);
 }
+
+/**************************************************************************************************************
+                                            CANCEL TICKET SCREEN
+**************************************************************************************************************/
+
+/* Saves the ticket and makes appropriate changes to db to cancel the ticket */
+void dwnld_and_cncl_tic(GtkButton* btn, gpointer data)
+{
+    DATA *app = data;
+    int conf = show_confirmation_dig("<b>Are you sure?</b>", "Cancelling your ticket dosen't remove your data from our database");
+    if (conf == false)
+    {
+        gtk_stack_set_visible_child(GTK_STACK(app->stack), app->welcome.scr);
+    }
+    else
+    {   
+        save_tic(NULL, app);
+        pthread_create(&(app->threads.cancel_tic), NULL, cancel_tic, app);
+    }
+}
+
 /**************************************************************************************************************
                                             BACK
 **************************************************************************************************************/

@@ -124,8 +124,19 @@ void* get_tic_thread(void* arg)
     }
     else
     {
-        const char* msg = (result == INVALID_TICKET_NO || result == ALPHABETS)?"<b>Please check your ticket number</b>":((result == INVALID_MOBILE_NO)?"<b>Please check the mobile number</b>":"<b>Please enter all the details</b>");
+        const char* msg = (result == INVALID_TICKET_NO || result == ALPHABETS)?"<b>Please check your ticket number</b>":((result == INVALID_MOBILE_NO)?"<b>Please check the mobile number</b>":((result == CANCELLED_TICKET)?"<b>Please Check your Ticket Number, it seems to be Cancelled</b>":((result == OLD_TRAIN)?"<b>Please Check your Ticket Number,\nit seems the train has already departed</b>":"<b>Please enter all the details</b>")));
         gtk_label_set_markup(GTK_LABEL(scr->msg_lbl), msg);
     }
+    return 0;
+}
+
+void* cancel_tic(void* arg)
+{
+    DATA *app = arg;
+
+    SQL_cancel_tic((char*)gtk_entry_get_text(GTK_ENTRY(app->cancel_tic.tic_num)));
+
+    gtk_stack_set_visible_child(GTK_STACK(app->stack), app->welcome.scr);
+    // show_msg_dig("<b>Success</b>", "Ticket successfully cancelled"); /* Breaks the code */
     return 0;
 }

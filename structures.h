@@ -107,6 +107,8 @@ typedef struct _tic_ops
     GtkWidget *revealer; 
     GtkWidget *tic_img, *dwnld; // GtkRevealer children
 
+    char* name; // Name of the screen (Used when cancelling a ticket whose train already departed in SQL_get_tic())
+
 }W_tic_ops;
 
 /***********************************************************************************************
@@ -130,6 +132,7 @@ typedef struct _threads
     pthread_t get_train_lst, get_seat_data; /* choose train scr */
     pthread_t book_ticket; /* View ticket scr */
     pthread_t get_tic; /* Download ticket */
+    pthread_t cancel_tic; /* Cancel Ticket */
 }THREADS;
 
 /* The structure that is passed to sqlite callbacks */
@@ -267,6 +270,8 @@ enum get_tic_db
 {
     ENTRY_EMPTY,
     ALPHABETS,
+    CANCELLED_TICKET,
+    OLD_TRAIN,
     INVALID_TICKET_NO,
     INVALID_MOBILE_NO,
     VALID_DATA,

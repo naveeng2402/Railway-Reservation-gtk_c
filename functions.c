@@ -298,11 +298,26 @@ void generate_reports()
     -pram: secondary :: Secondary Markup*/
 void show_msg_dig(const char* primary, const char* secondary)
 {
-    GtkWidget *dig = GTK_WIDGET(gtk_builder_get_object(gtk_builder_new_from_resource("/UI/UI.glade"),"Message_dig"));
+    // GtkWidget *dig = GTK_WIDGET(gtk_builder_get_object(gtk_builder_new_from_resource("/UI/UI.glade"),"Message_dig"));
+    GtkDialogFlags flags = GTK_DIALOG_MODAL;
+    GtkWidget *dig = gtk_message_dialog_new_with_markup(NULL, flags, GTK_MESSAGE_ERROR, GTK_BUTTONS_OK, NULL);
     gtk_message_dialog_set_markup(GTK_MESSAGE_DIALOG(dig), primary);
     gtk_message_dialog_format_secondary_markup(GTK_MESSAGE_DIALOG(dig), "%s", secondary);
     gtk_dialog_run(GTK_DIALOG(dig));
     gtk_widget_destroy(GTK_WIDGET(dig));
+}
+
+/* Shows a dialog box to confirm an action 
+    -pram: primary :: Primary Markup
+    -pram: secondary :: Secondary Markup */
+int show_confirmation_dig(const char* primary, const char* secondary)
+{
+    GtkWidget *dig = GTK_WIDGET(gtk_builder_get_object(gtk_builder_new_from_resource("/UI/UI.glade"),"confirmation_dig"));
+    gtk_message_dialog_set_markup(GTK_MESSAGE_DIALOG(dig), primary);
+    gtk_message_dialog_format_secondary_markup(GTK_MESSAGE_DIALOG(dig), "%s", secondary);
+    int response = gtk_dialog_run(GTK_DIALOG(dig));
+    gtk_widget_destroy(GTK_WIDGET(dig));
+    return response;
 }
 
 /************************************************************************************************************

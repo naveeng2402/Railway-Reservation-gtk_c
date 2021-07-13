@@ -191,6 +191,7 @@
   </object>
   <object class="GtkMessageDialog" id="Message_dig">
     <property name="can_focus">False</property>
+    <property name="modal">True</property>
     <property name="window_position">center-on-parent</property>
     <property name="default_width">250</property>
     <property name="default_height">100</property>
@@ -237,6 +238,73 @@
     </child>
     <action-widgets>
       <action-widget response="-5">button1</action-widget>
+    </action-widgets>
+  </object>
+  <object class="GtkMessageDialog" id="confirmation_dig">
+    <property name="can_focus">False</property>
+    <property name="modal">True</property>
+    <property name="window_position">center-on-parent</property>
+    <property name="destroy_with_parent">True</property>
+    <property name="type_hint">dialog</property>
+    <property name="message_type">warning</property>
+    <property name="text" translatable="yes">&lt;b&gt;Are you sure?&lt;/b&gt;</property>
+    <property name="use_markup">True</property>
+    <property name="secondary_text" translatable="yes">Cancelling your ticket dosen't remove your data from our database</property>
+    <property name="secondary_use_markup">True</property>
+    <child internal-child="vbox">
+      <object class="GtkBox">
+        <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
+        <child internal-child="action_area">
+          <object class="GtkButtonBox">
+            <property name="can_focus">False</property>
+            <property name="halign">center</property>
+            <property name="margin_bottom">20</property>
+            <property name="homogeneous">True</property>
+            <property name="layout_style">end</property>
+            <child>
+              <object class="GtkButton" id="button2">
+                <property name="label">gtk-no</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="use_stock">True</property>
+                <property name="always_show_image">True</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="button3">
+                <property name="label">gtk-yes</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="use_stock">True</property>
+                <property name="always_show_image">True</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+    <action-widgets>
+      <action-widget response="0">button2</action-widget>
+      <action-widget response="1">button3</action-widget>
     </action-widgets>
   </object>
   <object class="GtkWindow" id="win">
@@ -3778,6 +3846,7 @@ TITLE LABEL&lt;/span&gt;&lt;/b&gt;</property>
                             <property name="can_focus">False</property>
                             <property name="label" translatable="yes">&lt;b&gt;asdf&lt;/b&gt;</property>
                             <property name="use_markup">True</property>
+                            <property name="justify">center</property>
                           </object>
                           <packing>
                             <property name="left_attach">0</property>
@@ -3842,6 +3911,7 @@ TITLE LABEL&lt;/span&gt;&lt;/b&gt;</property>
                             <property name="receives_default">True</property>
                             <property name="halign">center</property>
                             <property name="always_show_image">True</property>
+                            <signal name="clicked" handler="dwnld_and_cncl_tic" swapped="no"/>
                             <child>
                               <object class="GtkGrid">
                                 <property name="visible">True</property>
