@@ -12,7 +12,7 @@
 
 #ifdef _WIN32
     #include <Windows.h>
-    #define download_html system(g_strdup_printf("copy rsc\\report.pdf %s /V", &(filename[7])))
+    #define download_html system(g_strdup_printf("start powershell.exe copy rsc/report.pdf %s", &(filename[8])))
 #else
     #include <unistd.h>
     #define download_html system(g_strdup_printf("cp rsc/report.pdf %s", &(filename[7])))
@@ -80,6 +80,7 @@ G_MODULE_EXPORT void dwnld_and_cncl_tic(GtkButton*, gpointer);
                 // Back btns
 G_MODULE_EXPORT void back_to_welcome_bk_tic(GtkButton*,gpointer);
 G_MODULE_EXPORT void back_to_welcome_dwnld_scr(GtkButton*,gpointer);
+G_MODULE_EXPORT void back_to_welcome_cancel_scr(GtkButton*,gpointer);
 G_MODULE_EXPORT void back_to_choose_train(GtkButton*,gpointer);
 G_MODULE_EXPORT void back_to_choose_seat(GtkButton*,gpointer);
 G_MODULE_EXPORT void back_to_enter_details(GtkButton*,gpointer);

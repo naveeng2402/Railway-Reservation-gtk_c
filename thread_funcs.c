@@ -130,6 +130,7 @@ void* get_tic_thread(void* arg)
     return 0;
 }
 
+/* ## Cancels the ticket */
 void* cancel_tic(void* arg)
 {
     DATA *app = arg;
