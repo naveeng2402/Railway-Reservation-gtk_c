@@ -18,7 +18,13 @@ As Everything out there this also has it's Limitations
 ## Windows
 Download the Railway_Reservation_System.zip
 ## Linux
-Download the Railway_Reservation_System.tar.gz extract it and run the binary in terminal
+- Download the Railway_Reservation_System.tar.gx and extract it 
+- Install wkhtmltopdf using terminal
+    ```bash
+    # for Debian or Ubuntu machines
+    sudo apt install wkhtmltopdf
+    ```
+- Run the binary in terminal
 > **Note :** The binary was tested Ubuntu 20.04 LTS
 
 # DEV

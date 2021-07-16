@@ -288,8 +288,8 @@ void generate_reports()
         system(".\\rsc\\bins\\wkhtmltopdf rsc\\report.html rsc\\report.pdf");
         system(".\\rsc\\bins\\wkhtmltoimage rsc\\report.html rsc\\report.png");
     #else
-        system("rsc/bins/wkhtmltopdf rsc/report.html rsc/report.pdf");
-        system("rsc/bins/wkhtmltoimage rsc/report.html rsc/report.png");
+        system("wkhtmltopdf rsc/report.html rsc/report.pdf");
+        system("wkhtmltoimage rsc/report.html rsc/report.png");
     #endif
 }
 
