@@ -1,0 +1,17 @@
+<big><big><big>About</big></big></big>
+This is an Railway Reservation application that lets you to emulate the <b>Booking<b><i></i></b>Cancelling</b> your tickets
+
+<big><big><big>Features</big></big></big>
+As mentioned above this app lets you to book, download and cancel your tickets
+ • All the data in here are for in app experience and does not translate to real world information
+ • The app extensively dependent on a database which it manages to keep track of all the data
+ • Although the database contains all the data only necessary information will be shown in a screen
+ • Various input integrity checks have been implemented
+
+<big><big><big>Limitations</big></big></big>
+As Everything out there this also has it's Limitations
+ • The app is current a station dependent app, i.e the user cannot change the boarding station(Defaults to Chennai Central) but can choose only their destination from the available ones
+ • The details of the trains is static but it can be altered by altering the db tables(DEST, NAME, TIMES and TRAIN, DEFAULT TRAINS Along with their connection tables)
+
+<big><big><big>DEV</big></big></big>
+ • Those who are willing to know more about the app's working refer <tt>resources</tt> and <tt>Design</tt> directory

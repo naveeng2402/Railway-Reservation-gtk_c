@@ -1,0 +1,6 @@
+<b><big>The app is made possible by</big></b>
+
+<a href="https://www.gtk.org/">The GTK Project</a>
+Icons and Images from : <a href="https://www.flaticon.com/">Flaticon</a>
+Icon Manipulation done in <a href="https://www.photopea.com/?utm_source=homescreen">Photopea</a>
+HTML Conversion is handled by <a href="https://wkhtmltopdf.org/index.html">wkhtmltopdf</a>

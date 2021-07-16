@@ -122,6 +122,20 @@ void welcome_info(GtkButton* btn, gpointer data)
 {
     GtkBuilder *b = gtk_builder_new_from_resource("/UI/UI.glade");
     GtkDialog *dig = GTK_DIALOG(gtk_builder_get_object(b,"Info_dialog"));
+    GBytes *bytes;
+    const char *markup;
+
+    gtk_image_set_from_pixbuf(GTK_IMAGE(gtk_builder_get_object(b, "Info_img")),
+        gdk_pixbuf_new_from_resource_at_scale("/icons/train.svg", 128, 128, TRUE, NULL));
+
+    bytes = g_resources_lookup_data("/pango/credits.txt",0,NULL);
+    markup = g_bytes_get_data(bytes, NULL);
+    gtk_label_set_markup(GTK_LABEL(gtk_builder_get_object(b, "info_credits")), markup);
+
+    bytes = g_resources_lookup_data("/pango/docs.txt",0,NULL);
+    markup = g_bytes_get_data(bytes, NULL);
+    gtk_label_set_markup(GTK_LABEL(gtk_builder_get_object(b, "info_docs")), markup);
+
     gtk_dialog_run(dig);
     g_object_unref(b);
     gtk_widget_destroy(GTK_WIDGET(dig));

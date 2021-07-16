@@ -27,6 +27,8 @@ int main(int argc, char **argv)
 
     g_object_unref(builder);
 
+    gtk_window_set_icon(GTK_WINDOW(app->win), gdk_pixbuf_new_from_resource_at_scale("/icons/train.svg", 128, 128, TRUE, NULL));
+
     gtk_widget_show(app->win);
 
     /* Create and start loading thread */
