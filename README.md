@@ -1,3 +1,5 @@
+Check out **Releases** for executables. The Linux binary is tested ony in ubuntu 20.04LTS
+
 # About
 This is an Railway Reservation application that lets you to emulate the **Booking**, **Downloading** and **Cancelling** your tickets
 
